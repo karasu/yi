@@ -4,7 +4,7 @@ SCRIPT_DIR=$(cd `dirname $0` && pwd)
 cd $SCRIPT_DIR
 
 
-cd live/liveMedia
+cd live555/liveMedia
 
 make clean
 make \

@@ -72,7 +72,7 @@ compile_module()
 
 source "$(get_script_dir)/common.sh"
 
-require_root
+#require_root
 
 echo ""
 echo "------------------------------------------------------------------------"

@@ -53,21 +53,21 @@ jffs2_mount()
     local JFFS2_MOUNT=$2
     
     # cleanup if necessary
-    umount /dev/mtdblock0 &>/dev/null
-    modprobe -r mtdram >/dev/null
-    modprobe -r mtdblock >/dev/null
+    sudo umount /dev/mtdblock0 &>/dev/null
+    sudo modprobe -r mtdram >/dev/null
+    sudo modprobe -r mtdblock >/dev/null
 
-    modprobe mtdram total_size=32768 erase_size=64 || exit 1
-    modprobe mtdblock || exit 1
-    dd if="$JFFS2_FILE" of=/dev/mtdblock0 &>/dev/null || exit 1
-    mount -t jffs2 /dev/mtdblock0 "$JFFS2_MOUNT" || exit 1
+    sudo modprobe mtdram total_size=32768 erase_size=64 || exit 1
+    sudo modprobe mtdblock || exit 1
+    sudo dd if="$JFFS2_FILE" of=/dev/mtdblock0 &>/dev/null || exit 1
+    sudo mount -t jffs2 /dev/mtdblock0 "$JFFS2_MOUNT" || exit 1
 }
 
 jffs2_umount()
 {
     local JFFS2_MOUNT=$1
-    umount $JFFS2_MOUNT
-    umount /dev/mtdblock0 &>/dev/null
+    sudo umount $JFFS2_MOUNT
+    sudo umount /dev/mtdblock0 &>/dev/null
 }
 
 jffs2_copy()
@@ -83,7 +83,7 @@ jffs2_copy()
     fi
     
     jffs2_mount $JFFS2_FILE $TMP_DIR
-    rsync -a $TMP_DIR/* $DEST_DIR
+    sudo rsync -a $TMP_DIR/* $DEST_DIR
     jffs2_umount $TMP_DIR
     
     rm -rf "$TMP_DIR"
@@ -259,7 +259,7 @@ extract_fw_update()
 
 source "$(get_script_dir)/common.sh"
 
-require_root
+#require_root
 
 if [ $# -ne 1 ]; then
     echo "Usage: init_sysroot.sh camera_name"

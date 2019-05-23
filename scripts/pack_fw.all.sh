@@ -26,7 +26,7 @@ get_script_dir()
 
 source "$(get_script_dir)/common.sh"
 
-require_root
+#require_root
 
 SCRIPT_DIR=$(get_script_dir)
 

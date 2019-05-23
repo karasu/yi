@@ -41,8 +41,8 @@ compress_file()
     local FILE=$DIR/$FILENAME
     if [[ -f "$FILE" ]]; then
         printf "Compressing %s... " $FILENAME
-        7za a "$FILE.7z" "$FILE" > /dev/null
-        rm -f "$FILE"
+        sudo 7za a "$FILE.7z" "$FILE" > /dev/null
+        sudo rm -f "$FILE"
         printf "done!\n"
     fi
 }
@@ -68,7 +68,7 @@ pack_image()
 
 source "$(get_script_dir)/common.sh"
 
-require_root
+#require_root
 
 
 if [ $# -ne 1 ]; then
@@ -86,10 +86,10 @@ CAMERA_ID=$(get_camera_id $CAMERA_NAME)
 BASE_DIR=$(get_script_dir)/../
 BASE_DIR=$(normalize_path $BASE_DIR)
 
-SYSROOT_DIR=$BASE_DIR/sysroot/$CAMERA_NAME
-STATIC_DIR=$BASE_DIR/static
-BUILD_DIR=$BASE_DIR/build
-OUT_DIR=$BASE_DIR/out/$CAMERA_NAME
+SYSROOT_DIR=${BASE_DIR}sysroot/$CAMERA_NAME
+STATIC_DIR=${BASE_DIR}static
+BUILD_DIR=${BASE_DIR}build
+OUT_DIR=${BASE_DIR}/out/$CAMERA_NAME
 
 echo ""
 echo "------------------------------------------------------------------------"
@@ -183,7 +183,7 @@ printf "done!\n\n"
 
 # fix the files ownership
 printf "Fixing the files ownership... "
-chown -R root:root $TMP_DIR/*
+sudo chown -R root:root $TMP_DIR/*
 printf "done!\n\n"
 
 # Compress a couple of the yi app files
@@ -194,15 +194,15 @@ compress_file "$TMP_DIR/home/app" rmm
 
 # Compress the yi-hack-v4 folder
 printf "Compressing yi-hack-v4... "
-7za a $TMP_DIR/home/yi-hack-v4/yi-hack-v4.7z $TMP_DIR/home/yi-hack-v4/* > /dev/null
+sudo 7za a $TMP_DIR/home/yi-hack-v4/yi-hack-v4.7z $TMP_DIR/home/yi-hack-v4/* > /dev/null
 
 # Delete all the compressed files except system_init.sh and yi-hack-v4.7z
-find $TMP_DIR/home/yi-hack-v4/script/ -maxdepth 0 ! -name 'system_init.sh' -type f -exec rm -f {} +
-find $TMP_DIR/home/yi-hack-v4/* -maxdepth 0 -type d ! -name 'script' -exec rm -rf {} +
-find $TMP_DIR/home/yi-hack-v4/* -maxdepth 0 -type f -not -name 'yi-hack-v4.7z' -exec rm {} +
+find $TMP_DIR/home/yi-hack-v4/script/ -maxdepth 0 ! -name 'system_init.sh' -type f -exec sudo rm -f {} +
+find $TMP_DIR/home/yi-hack-v4/* -maxdepth 0 -type d ! -name 'script' -exec sudo rm -rf {} +
+find $TMP_DIR/home/yi-hack-v4/* -maxdepth 0 -type f -not -name 'yi-hack-v4.7z' -exec sudo rm {} +
 printf "done!\n\n"
 
-# home 
+# home
 pack_image "home" $CAMERA_ID $TMP_DIR $OUT_DIR
 
 # rootfs
@@ -210,7 +210,7 @@ pack_image "rootfs" $CAMERA_ID $TMP_DIR $OUT_DIR
 
 # Cleanup
 printf "Cleaning up the tmp folder... "
-rm -rf $TMP_DIR
+sudo rm -rf $TMP_DIR
 printf "done!\n\n"
 
 echo "------------------------------------------------------------------------"

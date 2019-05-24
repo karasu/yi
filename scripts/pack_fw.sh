@@ -171,6 +171,14 @@ rsync -a $BUILD_DIR/rootfs/* $TMP_DIR/rootfs || exit 1
 rsync -a $BUILD_DIR/home/* $TMP_DIR/home || exit 1
 printf "done!\n"
 
+# Copy viewd
+cp $BASE_DIR/viewd $TMP_DIR/home/yi-hack-v4/bin
+
+# Copy sdk libraries
+if [ -d /opt/hisi-linux/x86-arm/arm-hisiv300-linux/arm-hisiv300-linux-uclibcgnueabi/lib ]; then
+    sudo cp -av /opt/hisi-linux/x86-arm/arm-hisiv300-linux/arm-hisiv300-linux-uclibcgnueabi/lib/*.so.* $TMP_DIR/home/yi-hack-v4/lib
+fi
+
 # insert the version file
 printf "Copying the version file... "
 cp $BASE_DIR/VERSION $TMP_DIR/home/yi-hack-v4/version

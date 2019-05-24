@@ -1,0 +1,39 @@
+#!/bin/bash
+
+SCRIPT_DIR=$(cd `dirname $0` && pwd)
+cd $SCRIPT_DIR
+
+rm -rf ./_install
+
+cd v4l2rtspserver || exit 1
+#git reset --hard 
+
+rm -rf CMakeFiles
+
+if [ -f liblive555.a ]; then
+    echo "Removing liblive555.a"
+    rm liblive555.a
+fi
+
+if [ -f libv4l2wrapper.a ]; then
+    echo "Removing libv4l2wrapper.a"
+    rm libv4l2wrapper.a
+fi
+
+cd live
+./genMakefiles armlinux
+cd ..
+
+#if [ ! -f libasound.so ]; then
+#    echo "Copying libasound.so"
+#    cp -v ../libasound.so libasound.so
+#fi
+
+if [ ! -d inc/alsa ]; then
+    echo "inc/alsa link created."
+    ln -s /usr/include/alsa inc/alsa
+fi
+
+
+
+

@@ -41,12 +41,17 @@ STATIC_DIR=${BASE_DIR}static
 BUILD_DIR=${BASE_DIR}build
 OUT_DIR=${BASE_DIR}out
 
-echo "Cleaning sysroot..."
-cd $SYSROOT_DIR
-rm -r yi_*
-echo "Cleaning out dir..."
-cd $OUT_DIR
-rm -r yi_*
+if [ -d $SYSROOT_DIR ]; then
+    echo "Cleaning sysroot..."
+    cd $SYSROOT_DIR
+    rm -r yi_*
+fi
+
+if [ -d $OUT_DIR ]; then
+    echo "Cleaning out dir..."
+    cd $OUT_DIR
+    rm -r yi_*
+fi
 
 echo "Cleaning src/*/_install folders..."
 rm -r ${BASE_DIR}src/busybox/_install

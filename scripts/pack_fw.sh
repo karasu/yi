@@ -3,16 +3,16 @@
 #
 #  This file is part of yi-hack-v4 (https://github.com/TheCrypt0/yi-hack-v4).
 #  Copyright (c) 2018-2019 Davide Maggioni.
-# 
+#
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation, version 3.
-# 
+#
 #  This program is distributed in the hope that it will be useful, but
 #  WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 #  General Public License for more details.
-# 
+#
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
@@ -25,12 +25,12 @@ get_script_dir()
 create_tmp_dir()
 {
     local TMP_DIR=$(mktemp -d)
-    
+
     if [[ ! "$TMP_DIR" || ! -d "$TMP_DIR" ]]; then
         echo "ERROR: Could not create temp dir \"$TMP_DIR\". Exiting."
         exit 1
     fi
-    
+
     echo $TMP_DIR
 }
 
@@ -53,9 +53,9 @@ pack_image()
     local CAMERA_ID=$2
     local DIR=$3
     local OUT=$4
-    
+
     printf "> PACKING : %s_%s\n\n" $TYPE $CAMERA_ID
-    
+
     printf "Creating jffs2 filesystem... "
     mkfs.jffs2 -l -e 64 -r $DIR/$TYPE -o $DIR/${TYPE}_${CAMERA_ID}.jffs2 || exit 1
     printf "done!\n"
@@ -89,7 +89,7 @@ BASE_DIR=$(normalize_path $BASE_DIR)
 SYSROOT_DIR=${BASE_DIR}sysroot/$CAMERA_NAME
 STATIC_DIR=${BASE_DIR}static
 BUILD_DIR=${BASE_DIR}build
-OUT_DIR=${BASE_DIR}/out/$CAMERA_NAME
+OUT_DIR=${BASE_DIR}out/$CAMERA_NAME
 
 echo ""
 echo "------------------------------------------------------------------------"
@@ -107,7 +107,7 @@ echo ""
 
 printf "Starting...\n\n"
 
-sleep 1 
+sleep 1
 
 printf "Checking if the required sysroot exists... "
 
@@ -150,13 +150,13 @@ fi
 
 for AUDIO_FILE in $TMP_DIR/home/app/audio_file/us/$AUDIO_EXTENSION ; do
     AUDIO_NAME=$(basename $AUDIO_FILE)
-    
+
     # Delete the original audio files
     rm -f $TMP_DIR/home/app/audio_file/jp/$AUDIO_NAME
     rm -f $TMP_DIR/home/app/audio_file/kr/$AUDIO_NAME
     rm -f $TMP_DIR/home/app/audio_file/simplecn/$AUDIO_NAME
     rm -f $TMP_DIR/home/app/audio_file/trditionalcn/$AUDIO_NAME
-    
+
     # Create links to the us version
     ln -s ../us/$AUDIO_NAME $TMP_DIR/home/app/audio_file/jp/$AUDIO_NAME
     ln -s ../us/$AUDIO_NAME $TMP_DIR/home/app/audio_file/kr/$AUDIO_NAME
@@ -190,8 +190,8 @@ echo $CAMERA_NAME > $TMP_DIR/home/app/.camver
 printf "done!\n\n"
 
 # fix the files ownership
-printf "Fixing the files ownership... "
-sudo chown -R root:root $TMP_DIR/*
+printf "Fixing tmp files ownership... "
+sudo chown -R root:root $TMP_DIR
 printf "done!\n\n"
 
 # Compress a couple of the yi app files
@@ -208,6 +208,11 @@ sudo 7za a $TMP_DIR/home/yi-hack-v4/yi-hack-v4.7z $TMP_DIR/home/yi-hack-v4/* > /
 find $TMP_DIR/home/yi-hack-v4/script/ -maxdepth 0 ! -name 'system_init.sh' -type f -exec sudo rm -f {} +
 find $TMP_DIR/home/yi-hack-v4/* -maxdepth 0 -type d ! -name 'script' -exec sudo rm -rf {} +
 find $TMP_DIR/home/yi-hack-v4/* -maxdepth 0 -type f -not -name 'yi-hack-v4.7z' -exec sudo rm {} +
+printf "done!\n\n"
+
+# fix the files ownership
+printf "Fixing compressed files ownership... "
+sudo chown -R root:root $TMP_DIR
 printf "done!\n\n"
 
 # home

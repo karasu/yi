@@ -147,8 +147,8 @@ if [[ $CAMERA_NAME == "yi_home" ]] ; then
     AUDIO_EXTENSION="*726"
 fi
 
-for AUDIO_FILE in $TMP_DIR/home/app/audio_file/us/$AUDIO_EXTENSION ; do
-    AUDIO_NAME=$(basename $AUDIO_FILE)
+for AUDIO_FILE in ${TMP_DIR}/home/app/audio_file/us/${AUDIO_EXTENSION} ; do
+    AUDIO_NAME=$(basename ${AUDIO_FILE})
 
     # Delete the original audio files
     rm -f $TMP_DIR/home/app/audio_file/jp/$AUDIO_NAME
@@ -166,20 +166,32 @@ printf "done!\n"
 
 # Copy the build files to the tmp dir
 printf "Copying the build files... "
-rsync -a $BUILD_DIR/rootfs/* $TMP_DIR/rootfs || exit 1
-rsync -a $BUILD_DIR/home/* $TMP_DIR/home || exit 1
+rsync -a ${BUILD_DIR}/rootfs/* ${TMP_DIR}/rootfs || exit 1
+rsync -a ${BUILD_DIR}/home/* ${TMP_DIR}/home || exit 1
 printf "done!\n"
 
 # Copy viewd
-cp $BASE_DIR/viewd $TMP_DIR/home/yi-hack-v4/bin
+if [ -f ${BASE_DIR}viewd ]; then
+    echo -n "Copying viewd..."
+    cp ${BASE_DIR}viewd ${TMP_DIR}/home/yi-hack-v4/bin
+fi
+printf "done!\n"
 
 # Copy sdk libraries
 if [ -d /opt/hisi-linux/x86-arm/arm-hisiv300-linux/arm-hisiv300-linux-uclibcgnueabi/lib ]; then
-    sudo cp -av /opt/hisi-linux/x86-arm/arm-hisiv300-linux/arm-hisiv300-linux-uclibcgnueabi/lib/*.so.* $TMP_DIR/home/yi-hack-v4/lib
+    echo "Copying library files from sdk..."
+    sudo cp -av /opt/hisi-linux/x86-arm/arm-hisiv300-linux/arm-hisiv300-linux-uclibcgnueabi/lib/*.so.* ${TMP_DIR}/home/yi-hack-v4/lib
 fi
+printf "done!\n"
+
+if [ ! -f ${TMP_DIR}/home/yi-hack-v4/bin/vencrtsp_v2 ]; then
+    echo -n "vencrtsp_v2 compilation failed. Copying executable..."
+    cp ${BASE_DIR}vencrtsp_v2 ${TMP_DIR}/home/yi-hack-v4/bin
+fi
+printf "done!\n"
 
 # insert the version file
-printf "Copying the version file... "
+printf "Copying VERSION file... "
 cp $BASE_DIR/VERSION $TMP_DIR/home/yi-hack-v4/version
 printf "done!\n\n"
 

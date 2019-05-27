@@ -1,0 +1,18 @@
+#!/bin/bash
+
+set -e
+
+SCRIPT_DIR=$(cd `dirname $0` && pwd)
+cd $SCRIPT_DIR
+
+cd vencrtsp_v2
+
+make clean
+make
+
+mkdir -p ../_install/bin
+
+cp ./vencrtsp_v2 ../_install/bin
+
+arm-hisiv300-linux-strip ../_install/bin/*
+

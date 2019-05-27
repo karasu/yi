@@ -1,5 +1,4 @@
 #!/bin/bash
-
 #
 #  This file is part of yi-hack-v4 (https://github.com/TheCrypt0/yi-hack-v4).
 #  Copyright (c) 2018-2019 Davide Maggioni.
@@ -54,13 +53,13 @@ pack_image()
     local DIR=$3
     local OUT=$4
 
-    printf "> PACKING : %s_%s\n\n" $TYPE $CAMERA_ID
+    printf ">>> PACKING : %s_%s\n\n" $TYPE $CAMERA_ID
 
     printf "Creating jffs2 filesystem... "
-    mkfs.jffs2 -l -e 64 -r $DIR/$TYPE -o $DIR/${TYPE}_${CAMERA_ID}.jffs2 || exit 1
+    sudo mkfs.jffs2 -l -e 64 -r $DIR/$TYPE -o $DIR/${TYPE}_${CAMERA_ID}.jffs2 || exit 1
     printf "done!\n"
     printf "Adding U-Boot header... "
-    mkimage -A arm -T filesystem -C none -n 0001-hi3518-$TYPE -d $DIR/${TYPE}_${CAMERA_ID}.jffs2 $OUT/${TYPE}_${CAMERA_ID} > /dev/null || exit 1
+    sudo mkimage -A arm -T filesystem -C none -n 0001-hi3518-$TYPE -d $DIR/${TYPE}_${CAMERA_ID}.jffs2 $OUT/${TYPE}_${CAMERA_ID} > /dev/null || exit 1
     printf "done!\n\n"
 }
 
@@ -205,9 +204,9 @@ printf "Compressing yi-hack-v4... "
 sudo 7za a $TMP_DIR/home/yi-hack-v4/yi-hack-v4.7z $TMP_DIR/home/yi-hack-v4/* > /dev/null
 
 # Delete all the compressed files except system_init.sh and yi-hack-v4.7z
-find $TMP_DIR/home/yi-hack-v4/script/ -maxdepth 0 ! -name 'system_init.sh' -type f -exec sudo rm -f {} +
-find $TMP_DIR/home/yi-hack-v4/* -maxdepth 0 -type d ! -name 'script' -exec sudo rm -rf {} +
-find $TMP_DIR/home/yi-hack-v4/* -maxdepth 0 -type f -not -name 'yi-hack-v4.7z' -exec sudo rm {} +
+sudo find $TMP_DIR/home/yi-hack-v4/script/ -maxdepth 0 ! -name 'system_init.sh' -type f -exec sudo rm -f {} +
+sudo find $TMP_DIR/home/yi-hack-v4/* -maxdepth 0 -type d ! -name 'script' -exec sudo rm -rf {} +
+sudo find $TMP_DIR/home/yi-hack-v4/* -maxdepth 0 -type f -not -name 'yi-hack-v4.7z' -exec sudo rm {} +
 printf "done!\n\n"
 
 # fix the files ownership
@@ -222,9 +221,9 @@ pack_image "home" $CAMERA_ID $TMP_DIR $OUT_DIR
 pack_image "rootfs" $CAMERA_ID $TMP_DIR $OUT_DIR
 
 # Cleanup
-printf "Cleaning up the tmp folder... "
-sudo rm -rf $TMP_DIR
-printf "done!\n\n"
+#printf "Cleaning up the tmp folder... "
+#sudo rm -rf $TMP_DIR
+#printf "done!\n\n"
 
 echo "------------------------------------------------------------------------"
 echo " Finished!"

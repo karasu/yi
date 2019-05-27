@@ -123,22 +123,22 @@ else
     printf "yeah!\n"
 fi
 
-printf "Creating the out directory... "
+echo -n "Creating the out directory... "
 mkdir -p $OUT_DIR
-printf "%s created!\n\n" $OUT_DIR
+echo "${OUT_DIR} created!"
 
-printf "Creating the tmp directory... "
+echo -n "Creating the tmp directory... "
 TMP_DIR=$(create_tmp_dir)
-printf "%s created!\n\n" $TMP_DIR
+echo "${TMP_DIR} created!"
 
 # Copy the sysroot to the tmp dir
-printf "Copying the sysroot contents... "
+echo -n "Copying the sysroot contents... "
 rsync -a $SYSROOT_DIR/rootfs/* $TMP_DIR/rootfs || exit 1
 rsync -a $SYSROOT_DIR/home/* $TMP_DIR/home || exit 1
-printf "done!\n"
+echo "done!"
 
 # We can safely replace chinese audio files with links to the us version
-printf "Removing unneeded audio files... "
+echo -n "Removing unneeded audio files... "
 
 AUDIO_EXTENSION="*.aac"
 
@@ -162,64 +162,68 @@ for AUDIO_FILE in ${TMP_DIR}/home/app/audio_file/us/${AUDIO_EXTENSION} ; do
     ln -s ../us/$AUDIO_NAME $TMP_DIR/home/app/audio_file/simplecn/$AUDIO_NAME
     ln -s ../us/$AUDIO_NAME $TMP_DIR/home/app/audio_file/trditionalcn/$AUDIO_NAME
 done
-printf "done!\n"
+echo "done!"
 
 # Copy the build files to the tmp dir
-printf "Copying the build files... "
+echo -n "Copying the build files... "
 rsync -a ${BUILD_DIR}/rootfs/* ${TMP_DIR}/rootfs || exit 1
 rsync -a ${BUILD_DIR}/home/* ${TMP_DIR}/home || exit 1
-printf "done!\n"
+echo "done!"
 
 # Copy viewd
 if [ -f ${BASE_DIR}viewd ]; then
     echo -n "Copying viewd..."
     cp ${BASE_DIR}viewd ${TMP_DIR}/home/yi-hack-v4/bin
 fi
-printf "done!\n"
+echo "done!"
 
 # Copy sdk libraries
 if [ -d /opt/hisi-linux/x86-arm/arm-hisiv300-linux/arm-hisiv300-linux-uclibcgnueabi/lib ]; then
     echo "Copying library files from sdk..."
     sudo cp -av /opt/hisi-linux/x86-arm/arm-hisiv300-linux/arm-hisiv300-linux-uclibcgnueabi/lib/*.so.* ${TMP_DIR}/home/yi-hack-v4/lib
 fi
-printf "done!\n"
+echo "done!"
 
 if [ ! -f ${TMP_DIR}/home/yi-hack-v4/bin/vencrtsp_v2 ]; then
     echo -n "vencrtsp_v2 compilation failed. Copying executable..."
     cp ${BASE_DIR}vencrtsp_v2 ${TMP_DIR}/home/yi-hack-v4/bin
 fi
-printf "done!\n"
+echo "done!"
 
 # insert the version file
-printf "Copying VERSION file... "
+echo -n "Copying VERSION file... "
 cp $BASE_DIR/VERSION $TMP_DIR/home/yi-hack-v4/version
-printf "done!\n\n"
+echo "done!"
 
 # insert the camera version file
-printf "Creating the .camver file... "
+echo -n "Creating the .camver file... "
 echo $CAMERA_NAME > $TMP_DIR/home/app/.camver
-printf "done!\n\n"
+echo "done!"
 
 # fix the files ownership
-printf "Fixing tmp files ownership... "
+echo -n "Fixing tmp files ownership... "
 sudo chown -R root:root $TMP_DIR
-printf "done!\n\n"
+echo "done!"
 
+echo -n "Compressing yi app files..."
 # Compress a couple of the yi app files
 compress_file "$TMP_DIR/home/app" cloudAPI
 compress_file "$TMP_DIR/home/app" oss
 compress_file "$TMP_DIR/home/app" p2p_tnp
 compress_file "$TMP_DIR/home/app" rmm
+echo "done!"
 
 # Compress the yi-hack-v4 folder
-printf "Compressing yi-hack-v4... "
+echo -n "Compressing yi-hack-v4... "
 sudo 7za a $TMP_DIR/home/yi-hack-v4/yi-hack-v4.7z $TMP_DIR/home/yi-hack-v4/* > /dev/null
+echo "done!"
 
+echo "Removing duplicated compressed files..."
 # Delete all the compressed files except system_init.sh and yi-hack-v4.7z
 sudo find $TMP_DIR/home/yi-hack-v4/script/ -maxdepth 0 ! -name 'system_init.sh' -type f -exec sudo rm -f {} +
 sudo find $TMP_DIR/home/yi-hack-v4/* -maxdepth 0 -type d ! -name 'script' -exec sudo rm -rf {} +
 sudo find $TMP_DIR/home/yi-hack-v4/* -maxdepth 0 -type f -not -name 'yi-hack-v4.7z' -exec sudo rm {} +
-printf "done!\n\n"
+echo "done!"
 
 # fix the files ownership
 printf "Fixing compressed files ownership... "
@@ -233,9 +237,9 @@ pack_image "home" $CAMERA_ID $TMP_DIR $OUT_DIR
 pack_image "rootfs" $CAMERA_ID $TMP_DIR $OUT_DIR
 
 # Cleanup
-#printf "Cleaning up the tmp folder... "
-#sudo rm -rf $TMP_DIR
-#printf "done!\n\n"
+echo -n "Cleaning up the tmp folder... "
+sudo rm -rf $TMP_DIR
+echo "done!"
 
 echo "------------------------------------------------------------------------"
 echo " Finished!"

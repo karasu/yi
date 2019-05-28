@@ -5,7 +5,7 @@ cd $SCRIPT_DIR
 
 rm -rf ./_install
 
-cd live
+cd live555
 #git reset --hard 
 
 ./genMakefiles armlinux

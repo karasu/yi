@@ -103,3 +103,5 @@ BUILD_DIR=$(get_script_dir)/../build
 if [ -d "$BIN_DIR" ]; then
     cp -R $BIN_DIR/* $BUILD_DIR/
 fi
+
+

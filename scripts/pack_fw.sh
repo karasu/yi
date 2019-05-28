@@ -1,18 +1,17 @@
 #!/bin/bash
-
 #
 #  This file is part of yi-hack-v4 (https://github.com/TheCrypt0/yi-hack-v4).
 #  Copyright (c) 2018-2019 Davide Maggioni.
-# 
+#
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation, version 3.
-# 
+#
 #  This program is distributed in the hope that it will be useful, but
 #  WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 #  General Public License for more details.
-# 
+#
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
@@ -25,12 +24,12 @@ get_script_dir()
 create_tmp_dir()
 {
     local TMP_DIR=$(mktemp -d)
-    
+
     if [[ ! "$TMP_DIR" || ! -d "$TMP_DIR" ]]; then
         echo "ERROR: Could not create temp dir \"$TMP_DIR\". Exiting."
         exit 1
     fi
-    
+
     echo $TMP_DIR
 }
 
@@ -41,8 +40,8 @@ compress_file()
     local FILE=$DIR/$FILENAME
     if [[ -f "$FILE" ]]; then
         printf "Compressing %s... " $FILENAME
-        7za a "$FILE.7z" "$FILE" > /dev/null
-        rm -f "$FILE"
+        sudo 7za a "$FILE.7z" "$FILE" > /dev/null
+        sudo rm -f "$FILE"
         printf "done!\n"
     fi
 }
@@ -53,14 +52,14 @@ pack_image()
     local CAMERA_ID=$2
     local DIR=$3
     local OUT=$4
-    
-    printf "> PACKING : %s_%s\n\n" $TYPE $CAMERA_ID
-    
+
+    printf ">>> PACKING : %s_%s\n\n" $TYPE $CAMERA_ID
+
     printf "Creating jffs2 filesystem... "
-    mkfs.jffs2 -l -e 64 -r $DIR/$TYPE -o $DIR/${TYPE}_${CAMERA_ID}.jffs2 || exit 1
+    sudo mkfs.jffs2 -l -e 64 -r $DIR/$TYPE -o $DIR/${TYPE}_${CAMERA_ID}.jffs2 || exit 1
     printf "done!\n"
     printf "Adding U-Boot header... "
-    mkimage -A arm -T filesystem -C none -n 0001-hi3518-$TYPE -d $DIR/${TYPE}_${CAMERA_ID}.jffs2 $OUT/${TYPE}_${CAMERA_ID} > /dev/null || exit 1
+    sudo mkimage -A arm -T filesystem -C none -n 0001-hi3518-$TYPE -d $DIR/${TYPE}_${CAMERA_ID}.jffs2 $OUT/${TYPE}_${CAMERA_ID} > /dev/null || exit 1
     printf "done!\n\n"
 }
 
@@ -68,7 +67,7 @@ pack_image()
 
 source "$(get_script_dir)/common.sh"
 
-require_root
+#require_root
 
 
 if [ $# -ne 1 ]; then
@@ -86,10 +85,10 @@ CAMERA_ID=$(get_camera_id $CAMERA_NAME)
 BASE_DIR=$(get_script_dir)/../
 BASE_DIR=$(normalize_path $BASE_DIR)
 
-SYSROOT_DIR=$BASE_DIR/sysroot/$CAMERA_NAME
-STATIC_DIR=$BASE_DIR/static
-BUILD_DIR=$BASE_DIR/build
-OUT_DIR=$BASE_DIR/out/$CAMERA_NAME
+SYSROOT_DIR=${BASE_DIR}sysroot/$CAMERA_NAME
+STATIC_DIR=${BASE_DIR}static
+BUILD_DIR=${BASE_DIR}build
+OUT_DIR=${BASE_DIR}out/$CAMERA_NAME
 
 echo ""
 echo "------------------------------------------------------------------------"
@@ -107,7 +106,7 @@ echo ""
 
 printf "Starting...\n\n"
 
-sleep 1 
+sleep 1
 
 printf "Checking if the required sysroot exists... "
 
@@ -124,22 +123,22 @@ else
     printf "yeah!\n"
 fi
 
-printf "Creating the out directory... "
+echo -n "Creating the out directory... "
 mkdir -p $OUT_DIR
-printf "%s created!\n\n" $OUT_DIR
+echo "${OUT_DIR} created!"
 
-printf "Creating the tmp directory... "
+echo -n "Creating the tmp directory... "
 TMP_DIR=$(create_tmp_dir)
-printf "%s created!\n\n" $TMP_DIR
+echo "${TMP_DIR} created!"
 
 # Copy the sysroot to the tmp dir
-printf "Copying the sysroot contents... "
+echo -n "Copying the sysroot contents... "
 rsync -a $SYSROOT_DIR/rootfs/* $TMP_DIR/rootfs || exit 1
 rsync -a $SYSROOT_DIR/home/* $TMP_DIR/home || exit 1
-printf "done!\n"
+echo "done!"
 
 # We can safely replace chinese audio files with links to the us version
-printf "Removing unneeded audio files... "
+echo -n "Removing unneeded audio files... "
 
 AUDIO_EXTENSION="*.aac"
 
@@ -148,70 +147,99 @@ if [[ $CAMERA_NAME == "yi_home" ]] ; then
     AUDIO_EXTENSION="*726"
 fi
 
-for AUDIO_FILE in $TMP_DIR/home/app/audio_file/us/$AUDIO_EXTENSION ; do
-    AUDIO_NAME=$(basename $AUDIO_FILE)
-    
+for AUDIO_FILE in ${TMP_DIR}/home/app/audio_file/us/${AUDIO_EXTENSION} ; do
+    AUDIO_NAME=$(basename ${AUDIO_FILE})
+
     # Delete the original audio files
     rm -f $TMP_DIR/home/app/audio_file/jp/$AUDIO_NAME
     rm -f $TMP_DIR/home/app/audio_file/kr/$AUDIO_NAME
     rm -f $TMP_DIR/home/app/audio_file/simplecn/$AUDIO_NAME
     rm -f $TMP_DIR/home/app/audio_file/trditionalcn/$AUDIO_NAME
-    
+
     # Create links to the us version
     ln -s ../us/$AUDIO_NAME $TMP_DIR/home/app/audio_file/jp/$AUDIO_NAME
     ln -s ../us/$AUDIO_NAME $TMP_DIR/home/app/audio_file/kr/$AUDIO_NAME
     ln -s ../us/$AUDIO_NAME $TMP_DIR/home/app/audio_file/simplecn/$AUDIO_NAME
     ln -s ../us/$AUDIO_NAME $TMP_DIR/home/app/audio_file/trditionalcn/$AUDIO_NAME
 done
-printf "done!\n"
+echo "done!"
 
 # Copy the build files to the tmp dir
-printf "Copying the build files... "
-rsync -a $BUILD_DIR/rootfs/* $TMP_DIR/rootfs || exit 1
-rsync -a $BUILD_DIR/home/* $TMP_DIR/home || exit 1
-printf "done!\n"
+echo -n "Copying the build files... "
+rsync -a ${BUILD_DIR}/rootfs/* ${TMP_DIR}/rootfs || exit 1
+rsync -a ${BUILD_DIR}/home/* ${TMP_DIR}/home || exit 1
+echo "done!"
+
+# Copy viewd
+if [ -f ${BASE_DIR}viewd ]; then
+    echo -n "Copying viewd..."
+    cp ${BASE_DIR}viewd ${TMP_DIR}/home/yi-hack-v4/bin
+fi
+echo "done!"
+
+# Copy sdk libraries
+if [ -d /opt/hisi-linux/x86-arm/arm-hisiv300-linux/arm-hisiv300-linux-uclibcgnueabi/lib ]; then
+    echo "Copying library files from sdk..."
+    sudo cp -av /opt/hisi-linux/x86-arm/arm-hisiv300-linux/arm-hisiv300-linux-uclibcgnueabi/lib/*.so.* ${TMP_DIR}/home/yi-hack-v4/lib
+fi
+echo "done!"
+
+if [ ! -f ${TMP_DIR}/home/yi-hack-v4/bin/vencrtsp_v2 ]; then
+    echo -n "vencrtsp_v2 compilation failed. Copying executable..."
+    cp ${BASE_DIR}vencrtsp_v2 ${TMP_DIR}/home/yi-hack-v4/bin
+fi
+echo "done!"
 
 # insert the version file
-printf "Copying the version file... "
+echo -n "Copying VERSION file... "
 cp $BASE_DIR/VERSION $TMP_DIR/home/yi-hack-v4/version
-printf "done!\n\n"
+echo "done!"
 
 # insert the camera version file
-printf "Creating the .camver file... "
+echo -n "Creating the .camver file... "
 echo $CAMERA_NAME > $TMP_DIR/home/app/.camver
-printf "done!\n\n"
+echo "done!"
 
 # fix the files ownership
-printf "Fixing the files ownership... "
-chown -R root:root $TMP_DIR/*
-printf "done!\n\n"
+echo -n "Fixing tmp files ownership... "
+sudo chown -R root:root $TMP_DIR
+echo "done!"
 
+echo -n "Compressing yi app files..."
 # Compress a couple of the yi app files
 compress_file "$TMP_DIR/home/app" cloudAPI
 compress_file "$TMP_DIR/home/app" oss
 compress_file "$TMP_DIR/home/app" p2p_tnp
 compress_file "$TMP_DIR/home/app" rmm
+echo "done!"
 
 # Compress the yi-hack-v4 folder
-printf "Compressing yi-hack-v4... "
-7za a $TMP_DIR/home/yi-hack-v4/yi-hack-v4.7z $TMP_DIR/home/yi-hack-v4/* > /dev/null
+echo -n "Compressing yi-hack-v4... "
+sudo 7za a $TMP_DIR/home/yi-hack-v4/yi-hack-v4.7z $TMP_DIR/home/yi-hack-v4/* > /dev/null
+echo "done!"
 
+echo "Removing duplicated compressed files..."
 # Delete all the compressed files except system_init.sh and yi-hack-v4.7z
-find $TMP_DIR/home/yi-hack-v4/script/ -maxdepth 0 ! -name 'system_init.sh' -type f -exec rm -f {} +
-find $TMP_DIR/home/yi-hack-v4/* -maxdepth 0 -type d ! -name 'script' -exec rm -rf {} +
-find $TMP_DIR/home/yi-hack-v4/* -maxdepth 0 -type f -not -name 'yi-hack-v4.7z' -exec rm {} +
+sudo find $TMP_DIR/home/yi-hack-v4/script/ -maxdepth 0 ! -name 'system_init.sh' -type f -exec sudo rm -f {} +
+sudo find $TMP_DIR/home/yi-hack-v4/* -maxdepth 0 -type d ! -name 'script' -exec sudo rm -rf {} +
+sudo find $TMP_DIR/home/yi-hack-v4/* -maxdepth 0 -type f -not -name 'yi-hack-v4.7z' -exec sudo rm {} +
+echo "done!"
+
+# fix the files ownership
+printf "Fixing compressed files ownership... "
+sudo chown -R root:root $TMP_DIR
 printf "done!\n\n"
 
-# home 
+# home
 pack_image "home" $CAMERA_ID $TMP_DIR $OUT_DIR
 
 # rootfs
 pack_image "rootfs" $CAMERA_ID $TMP_DIR $OUT_DIR
 
 # Cleanup
-printf "Cleaning up the tmp folder... "
-rm -rf $TMP_DIR
-printf "done!\n\n"
+echo -n "Cleaning up the tmp folder... "
+sudo rm -rf $TMP_DIR
+echo "done!"
 
 echo "------------------------------------------------------------------------"
 echo " Finished!"

@@ -35,10 +35,10 @@ echo ""
 BASE_DIR=$(get_script_dir)/../
 BASE_DIR=$(normalize_path $BASE_DIR)
 
-SYSROOT_DIR=$BASE_DIR/sysroot
-STATIC_DIR=$BASE_DIR/static
-BUILD_DIR=$BASE_DIR/build
-OUT_DIR=$BASE_DIR/out
+SYSROOT_DIR=${BASE_DIR}sysroot
+STATIC_DIR=${BASE_DIR}static
+BUILD_DIR=${BASE_DIR}build
+OUT_DIR=${BASE_DIR}out
 
 echo -n "Cleaning sysroot..."
 rm -r ${SYSROOT_DIR}/yi_*

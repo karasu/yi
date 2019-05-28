@@ -1,4 +1,6 @@
 
+Please, go to [https://github.com/TheCrypt0/yi-hack-v4](https://github.com/TheCrypt0/yi-hack-v4) which is the original author and repository. This is only for my personal use and it's likely that will not work for you. Thanks!
+
 <p align="center">
 	<img height="200" src="https://raw.githubusercontent.com/TheCrypt0/yi-hack-v4/master/imgs/yi-hack-v4-header.png">
 </p>

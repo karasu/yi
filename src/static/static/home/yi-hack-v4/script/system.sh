@@ -15,11 +15,11 @@ get_config()
 }
 
 if [ -d "/usr/yi-hack-v4" ]; then
-	export LD_LIBRARY_PATH=/home/libusr:$LD_LIBRARY_PATH:/usr/yi-hack-v4/lib:/home/hd1/yi-hack-v4/lib
-	export PATH=$PATH:/usr/yi-hack-v4/bin:/usr/yi-hack-v4/sbin:/home/hd1/yi-hack-v4/bin:/home/hd1/yi-hack-v4/sbin
+    export LD_LIBRARY_PATH=/home/libusr:$LD_LIBRARY_PATH:/usr/yi-hack-v4/lib:/home/hd1/yi-hack-v4/lib
+    export PATH=$PATH:/usr/yi-hack-v4/bin:/usr/yi-hack-v4/sbin:/home/hd1/yi-hack-v4/bin:/home/hd1/yi-hack-v4/sbin
 elif [ -d "/home/yi-hack-v4" ]; then
-	export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/lib:/home/yi-hack-v4/lib:/tmp/sd/yi-hack-v4/lib
-	export PATH=$PATH:/home/base/tools:/home/yi-hack-v4/bin:/home/yi-hack-v4/sbin:/tmp/sd/yi-hack-v4/bin:/tmp/sd/yi-hack-v4/sbin
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/lib:/home/yi-hack-v4/lib:/tmp/sd/yi-hack-v4/lib
+    export PATH=$PATH:/home/base/tools:/home/yi-hack-v4/bin:/home/yi-hack-v4/sbin:/tmp/sd/yi-hack-v4/bin:/tmp/sd/yi-hack-v4/sbin
 fi
 
 ulimit -s 1024
@@ -92,4 +92,28 @@ if [ -f "/tmp/sd/yi-hack-v4/startup.sh" ]; then
     /tmp/sd/yi-hack-v4/startup.sh
 elif [ -f "/home/hd1/yi-hack-v4/startup.sh" ]; then
     /home/hd1/yi-hack-v4/startup.sh
+fi
+
+# Adding some symlinks for the last picture/video
+if [ ! -d "/home/yi-hack-v4/www/img" ]; then
+    mkdir /home/yi-hack-v4/www/img
+fi
+
+if [ ! -f "/home/yi-hack-v4/www/img/last.jpg" ]; then
+    ln -s /tmp/sd/record/last.jpg /home/yi-hack-v4/www/img/last.jpg
+fi
+
+if [ ! -f "/home/yi-hack-v4/www/img/last.mp4" ]; then
+    ln -s /tmp/sd/record/last.mp4 /home/yi-hack-v4/www/img/last.mp4
+fi
+
+#Check if we use the telegram functionality
+if [[ $(get_config ALARM) == "yes" ]] ; then
+    if [ -f "/home/yi-hack-v4/script/alarm.sh" ]; then
+        sh /home/yi-hack-v4/script/alarm.sh &
+    fi
+else
+    if [ -f "/home/yi-hack-v4/script/last_motion.sh" ]; then
+        sh /home/yi-hack-v4/script/last_motion.sh &
+    fi
 fi

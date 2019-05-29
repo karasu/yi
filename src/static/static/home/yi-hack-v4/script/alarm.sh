@@ -6,7 +6,7 @@ if [ -d "/usr/yi-hack-v4" ]; then
 elif [ -d "/home/yi-hack-v4" ]; then
 	YI_HACK_V3_PREFIX="/home"
 fi
-source $YI_HACK_V3_PREFIX/yi-hack-v4/script/include_functions.sh
+source $YI_HACK_V3_PREFIX/yi-hack-v4/script/alarm_functions.sh
 
 CAMERA_NAME=`more $YI_HACK_V3_PREFIX/yi-hack-v4/etc/hostname`;
 

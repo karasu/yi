@@ -1,18 +1,17 @@
 #!/bin/bash
-
 #
 #  This file is part of yi-hack-v4 (https://github.com/TheCrypt0/yi-hack-v4).
 #  Copyright (c) 2018-2019 Davide Maggioni.
-# 
+#
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation, version 3.
-# 
+#
 #  This program is distributed in the hope that it will be useful, but
 #  WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 #  General Public License for more details.
-# 
+#
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
@@ -39,10 +38,12 @@ create_sysroot_dir()
         echo ""
         exit 1
     fi
-    
+
     echo "Creating the sysroot dirs.."
+
     mkdir -p "$SYSROOT_DIR/home"
     echo "\"$SYSROOT_DIR/home\" folder created!"
+
     mkdir -p "$SYSROOT_DIR/rootfs"
     echo "\"$SYSROOT_DIR/rootfs\" folder created!"
 }
@@ -51,7 +52,7 @@ jffs2_mount()
 {
     local JFFS2_FILE=$1
     local JFFS2_MOUNT=$2
-    
+
     # cleanup if necessary
     sudo umount /dev/mtdblock0 &>/dev/null
     sudo modprobe -r mtdram >/dev/null
@@ -74,18 +75,18 @@ jffs2_copy()
 {
     local JFFS2_FILE=$1
     local DEST_DIR=$2
-    
+
     local TMP_DIR=$(mktemp -d)
-    
+
     if [[ ! "$TMP_DIR" || ! -d "$TMP_DIR" ]]; then
         echo "ERROR: Could not create temp dir \"$TMP_DIR\". Exiting."
         exit 1
     fi
-    
+
     jffs2_mount $JFFS2_FILE $TMP_DIR
     sudo rsync -a $TMP_DIR/* $DEST_DIR
     jffs2_umount $TMP_DIR
-    
+
     rm -rf "$TMP_DIR"
 }
 
@@ -94,101 +95,100 @@ extract_stock_fw()
     local CAMERA_ID=$1
     local SYSROOT_DIR=$2
     local FW_DIR=$3
-    
+
     local FIRMWARE_HOME=$FW_DIR/home_$CAMERA_ID
     local FIRMWARE_ROOTFS=$FW_DIR/rootfs_$CAMERA_ID
-    
+
     local FIRMWARE_HOME_DESTDIR=$SYSROOT_DIR/home
     local FIRMWARE_ROOTFS_DESTDIR=$SYSROOT_DIR/rootfs
-    
+
     echo "Extracting the stock firmware images..."
-    
+
     if [[ ! -f "$FIRMWARE_HOME" || ! -f "$FIRMWARE_ROOTFS" ]]; then
         echo "ERROR: $FIRMWARE_HOME or $FIRMWARE_ROOTFS not found. Exiting."
         exit 1
     fi
-    
+
     # copy the stock firmware images contents to the sysroot
-    
+
     printf "Extracting \"home_$CAMERA_ID\" image to \"$FIRMWARE_HOME_DESTDIR\"... "
     dd bs=64 skip=1 if="$FIRMWARE_HOME" of="$FIRMWARE_HOME.jffs2.tmp" &> /dev/null || exit 1
     jffs2_copy $FIRMWARE_HOME.jffs2.tmp $FIRMWARE_HOME_DESTDIR
     rm -rf $FIRMWARE_HOME.jffs2.tmp
     echo "done!"
-    
+
     printf "Extracting \"rootfs_$CAMERA_ID\" image to \"$FIRMWARE_ROOTFS_DESTDIR\"... "
     dd bs=64 skip=1 if="$FIRMWARE_ROOTFS" of="$FIRMWARE_ROOTFS.jffs2.tmp" &> /dev/null || exit 1
     jffs2_copy $FIRMWARE_ROOTFS.jffs2.tmp $FIRMWARE_ROOTFS_DESTDIR
     rm -rf $FIRMWARE_ROOTFS.jffs2.tmp
     echo "done!"
-    
 }
 
 generate_pem_certificate_from_xiaomi_binary_key()
 {
     # This took me way too much time that I'm confident to admit
     # Really.
-    
+
     local RSA_PUB_KEY=$1
     local RSA_CERT=$2
-    
+
     if [ ! -f "$RSA_PUB_KEY" ]; then
         printf "ERROR: Cannot find the rsa public key \"%s\"\n" $RSA_PUB_KEY
         printf "Exiting...\n\n"
         exit 0
     fi
-    
+
     local TMP_DIR=$(mktemp -d)
-    
+
     if [[ ! "$TMP_DIR" || ! -d "$TMP_DIR" ]]; then
         echo "ERROR: Could not create temp dir \"$TMP_DIR\". Exiting."
         exit 1
     fi
-    
-    dd if=$RSA_PUB_KEY of=$TMP_DIR/modulus.bin bs=1 count=256 
+
+    dd if=$RSA_PUB_KEY of=$TMP_DIR/modulus.bin bs=1 count=256
     dd if=$RSA_PUB_KEY of=$TMP_DIR/exponent.bin bs=1 skip=256 count=3
     echo 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA' | base64 -d > $TMP_DIR/header.bin
     echo '02 03' | xxd -r -p > $TMP_DIR/mid-header.bin
     cat $TMP_DIR/header.bin $TMP_DIR/modulus.bin $TMP_DIR/mid-header.bin $TMP_DIR/exponent.bin > $TMP_DIR/key.der
     openssl pkey -inform der -outform pem -pubin -in $TMP_DIR/key.der -out $TMP_DIR/key.pem || exit 1
-    
+
     cp $TMP_DIR/key.pem $RSA_CERT
-    
+
     rm -rf "$TMP_DIR"
 }
 
 extract_fw_update()
 {
-    # extract_fw_update 
+    # extract_fw_update
     # Based on the script: y18m (17CN) unpacker 0.1 by MP77V 4pda.ru 04.05.2017
 
     local CAMERA_ID=$1
     local SYSROOT_DIR=$2
     local FW_DIR=$3
-      
+
     local UPDATE_FW=""
     local RSA_PUB_KEY=$FW_DIR/../common/pub_key
     local RSA_PEM_CERT=$FW_DIR/../common/pub_key.pem
-    
+
     if [ $CAMERA_ID == "v201" ]; then
         # The yi_dome uses a different filename for the update
         UPDATE_FW=$FW_DIR/home_v200m
     else
         UPDATE_FW=$FW_DIR/home_${CAMERA_ID}m
     fi
-    
+
     if [ ! -f $UPDATE_FW ] ; then
         printf "WARNING: Cannot find \"%s\"\n" $UPDATE_FW
         printf "Skipping fw update...\n\n"
         return 0
     fi
-    
+
     if [ ! -f $RSA_PUB_KEY ] ; then
         printf "ERROR: Cannot find the rsa public key \"%s\"\n" $RSA_PUB_KEY
         printf "Skipping fw update...\n\n"
         return 0
     fi
-    
+
     printf "Update firmware file \"%s\" found! Extracting...\n" home_${CAMERA_ID}m
 
     chunk()
@@ -199,7 +199,7 @@ extract_fw_update()
             head -c $(($2 + $3)) ${1} | tail -c ${3}
         fi
     }
-    
+
     printf "Generating .pem cerificate from Xiaomi rsa key...\n"
     generate_pem_certificate_from_xiaomi_binary_key $RSA_PUB_KEY $RSA_PEM_CERT
     printf "RSA PEM CERTIFICATE GENERATED!\n"
@@ -209,13 +209,13 @@ extract_fw_update()
 
     hdr="$FW_DIR/hdr.dec"
     echo -n "" >${hdr}
-    
+
     for ((i = 0; i <= 4; i++)); do
         chunk ${UPDATE_FW} $((22 + 256 * $i)) 256 | openssl rsautl -inkey $RSA_PEM_CERT -pubin -raw | base64 -d >>${hdr}
     done
-    
+
     rm $RSA_PEM_CERT
-    
+
     local md5="$(chunk ${hdr}  0 33)"
     local key="$(chunk ${hdr} 33 33)"
     local ver="$(chunk ${hdr} 66 22)"
@@ -235,23 +235,23 @@ extract_fw_update()
         echo "!!! Incorrect checksumm !!!"
         exit 4
     fi
-    
+
     mkdir $FW_DIR/tmp
 
     7za x -y -o$FW_DIR/tmp -p$key $FW_DIR/update.7z.tmp | tail -n 6
     test "$?" -eq 0 && echo "END" || exit 5
-    
+
     # Sometimes some files in the update are 7zipped 
     # Let's unpack them
     find $FW_DIR/tmp -type f -name "*.7z" -execdir 7za x {} \; -exec rm -- {} \; > /dev/null || exit 0
-    
+
     # Copy all the extracted files to the sysroot dir
     rsync -a $FW_DIR/tmp/* $SYSROOT_DIR/
-    
+
     # Cleanup
     rm -f  "$FW_DIR/update.7z.tmp"
     rm -rf "$FW_DIR/tmp/"
-    
+
     printf "Update applied to the sysroot!\n"
 }
 
@@ -315,5 +315,3 @@ echo "Success!"
 echo ""
 
 exit 0
-
-

@@ -3,16 +3,16 @@
 #
 #  This file is part of yi-hack-v4 (https://github.com/TheCrypt0/yi-hack-v4).
 #  Copyright (c) 2018-2019 Davide Maggioni.
-# 
+#
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation, version 3.
-# 
+#
 #  This program is distributed in the hope that it will be useful, but
 #  WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 #  General Public License for more details.
-# 
+#
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
@@ -60,9 +60,8 @@ check_camera_name()
     local CAMERA_NAME=$1
     if [[ ! ${CAMERAS[$CAMERA_NAME]+_} ]]; then
         printf "%s not found.\n\n" $CAMERA_NAME
-        
         printf "Here's the list of supported cameras:\n\n"
-        print_cameras_list 
+        print_cameras_list
         printf "\n"
         exit 1
     fi
@@ -70,7 +69,7 @@ check_camera_name()
 
 print_cameras_list()
 {
-    for CAMERA_NAME in "${!CAMERAS[@]}"; do 
+    for CAMERA_NAME in "${!CAMERAS[@]}"; do
         printf "%s\n" $CAMERA_NAME
     done
 }

@@ -86,8 +86,8 @@ export PATH="/opt/hisi-linux/x86-arm/arm-hisiv300-linux/target/bin:$PATH"
 
 rm -rf "$(get_script_dir)/../build/"
 
-mkdir -p "$(get_script_dir)/../build/home"
-mkdir -p "$(get_script_dir)/../build/rootfs"
+mkdir -p "$(get_script_dir)/../build/home" || exit 1
+mkdir -p "$(get_script_dir)/../build/rootfs" || exit 1
 
 SRC_DIR=$(get_script_dir)/../src
 
@@ -103,5 +103,3 @@ BUILD_DIR=$(get_script_dir)/../build
 if [ -d "$BIN_DIR" ]; then
     cp -R $BIN_DIR/* $BUILD_DIR/
 fi
-
-

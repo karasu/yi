@@ -2,18 +2,15 @@
 # Copyright 2018 Vladimir Dronnikov & Frank van der Stad
 # GPL
 
-if [ -d "/usr/yi-hack-v4" ]; then
-	YI_HACK_V3_PREFIX="/usr"
-elif [ -d "/home/yi-hack-v4" ]; then
-	YI_HACK_V3_PREFIX="/home"
-fi
+YI_HOME="/home/yi"
 
-source $YI_HACK_V3_PREFIX/yi-hack-v4/script/alarm_functions.sh
+source ${YI_HOME}/script/alarm_functions.sh
 
-CAMERA_NAME=$(more $YI_HACK_V3_PREFIX/yi-hack-v4/etc/hostname)
+CAMERA_NAME=$(more ${YI_HOME}/etc/hostname)
 
 # This part is copyright 2018 Vladimir Dronnikov
 # GPL
+
 ALARM=0
 while true; do
   test -r /tmp/sd/record/tmp.mp4.tmp && REC=1 || REC=0

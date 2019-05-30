@@ -1,14 +1,12 @@
 #!/bin/sh
 # Copyright 2018 Vladimir Dronnikov & Frank van der Stad
 # GPL
-if [ -d "/usr/yi-hack-v4" ]; then
-	YI_HACK_V3_PREFIX="/usr"
-elif [ -d "/home/yi-hack-v4" ]; then
-	YI_HACK_V3_PREFIX="/home"
-fi
-source $YI_HACK_V3_PREFIX/yi-hack-v4/script/alarm_functions.sh
 
-CAMERA_NAME=`more $YI_HACK_V3_PREFIX/yi-hack-v4/etc/hostname`;
+YI_HOME="/home/yi"
+
+source ${YI_HOME}/script/alarm_functions.sh
+
+CAMERA_NAME=`more ${YI_HOME}/etc/hostname`;
 
 TELEGRAM_BOT_TOKEN=$(get_config TELEGRAM_BOT_TOKEN)
 TELEGRAM_CHAT_ID=$(get_config TELEGRAM_CHAT_ID)

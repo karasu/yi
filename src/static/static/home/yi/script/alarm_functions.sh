@@ -1,17 +1,11 @@
 #!/bin/sh
 # Copyright 2018 Frank van der Stad
 # GPL
-CONF_FILE="/yi-hack-v4/etc/system.conf"
-
-if [ -d "/usr/yi-hack-v4" ]; then
-  YI_HACK_V4_PREFIX="/usr"
-elif [ -d "/home/yi-hack-v4" ]; then
-  YI_HACK_V4_PREFIX="/home"
-fi
+CONF_FILE="/home/yi/etc/system.conf"
 
 get_config() {
   key=$1
-  grep $1 $YI_HACK_V4_PREFIX$CONF_FILE | cut -d "=" -f2
+  grep -w $1 ${CONF_FILE} | cut -d "=" -f2
 }
 
 curl() {

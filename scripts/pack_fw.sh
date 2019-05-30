@@ -85,6 +85,8 @@ CAMERA_ID=$(get_camera_id $CAMERA_NAME)
 BASE_DIR=$(get_script_dir)/../
 BASE_DIR=$(normalize_path $BASE_DIR)
 
+YI_HOME="/home/yi"
+
 SYSROOT_DIR=${BASE_DIR}sysroot/$CAMERA_NAME
 STATIC_DIR=${BASE_DIR}static
 BUILD_DIR=${BASE_DIR}build
@@ -92,7 +94,7 @@ OUT_DIR=${BASE_DIR}out/$CAMERA_NAME
 
 echo ""
 echo "------------------------------------------------------------------------"
-echo " YI-HACK-V4 - FIRMWARE PACKER"
+echo " YI HACK - FIRMWARE PACKER"
 echo "------------------------------------------------------------------------"
 printf " camera_name      : %s\n" $CAMERA_NAME
 printf " camera_id        : %s\n" $CAMERA_ID
@@ -173,7 +175,7 @@ echo "done!"
 # Copy viewd
 if [ -f ${BASE_DIR}viewd ]; then
     echo -n "Copying viewd..."
-    cp ${BASE_DIR}viewd ${TMP_DIR}/home/yi-hack-v4/bin
+    cp ${BASE_DIR}viewd ${TMP_DIR}/home/yi/bin
 fi
 echo "done!"
 

@@ -4,7 +4,7 @@ YI_HOME="/home/yi"
 YI_PREFIX="/home/app"
 UDHCPC_SCRIPT_DEST="/home/app/script/default.script"
 
-ARCHIVE_FILE="${YI_HOME}/yi-hack-v4.7z"
+ARCHIVE_FILE="${YI_HOME}/yi.7z"
 
 DHCP_SCRIPT_DEST="/home/app/script/wifidhcp.sh"
 UDHCP_SCRIPT="${YI_HOME}/script/default.script"
@@ -17,7 +17,7 @@ if [ ${#files[@]} -gt 0 ]; then
 	rm $YI_PREFIX/*.7z
 fi
 
-# Extract yi-hack-v4.7z
+# Extract yi.7z
 if [ -f $ARCHIVE_FILE ]; then
 	/home/base/tools/7za x $ARCHIVE_FILE -y -o$DESTDIR
 	rm $ARCHIVE_FILE

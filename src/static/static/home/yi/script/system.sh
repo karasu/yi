@@ -1,6 +1,8 @@
 #!/bin/sh
 
 YI_HOME="/home/yi"
+YI_HOME_SD="/tmp/sd/yi"
+RECORD="/tmp/sd/record/"
 CONF_FILE="${YI_HOME}/etc/system.conf"
 
 get_config()
@@ -9,8 +11,8 @@ get_config()
     grep -w $1 $CONF_FILE | cut -d "=" -f2
 }
 
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/lib:${YI_HOME}/lib:/tmp/sd/yi-hack-v4/lib
-export PATH=$PATH:/home/base/tools:${YI_HOME}/bin:${YI_HOME}/sbin:/tmp/sd/yi-hack-v4/bin:/tmp/sd/yi-hack-v4/sbin
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/lib:${YI_HOME}/lib:${YI_HOME_SD}/lib
+export PATH=$PATH:/home/base/tools:${YI_HOME}/bin:${YI_HOME}/sbin:${YI_HOME_SD}/bin:${YI_HOME_SD}/sbin
 
 ulimit -s 1024
 hostname -F /etc/hostname
@@ -78,10 +80,10 @@ ${YI_HOME}/script/check_update.sh
 
 crond -c ${YI_HOME}/etc/crontabs
 
-if [ -f "/tmp/sd/yi-hack-v4/startup.sh" ]; then
-    /tmp/sd/yi-hack-v4/startup.sh
-elif [ -f "/home/hd1/yi-hack-v4/startup.sh" ]; then
-    /home/hd1/yi-hack-v4/startup.sh
+if [ -f "${YI_HOME_SD}/startup.sh" ]; then
+    ${YI_HOME_SD}/startup.sh
+elif [ -f "/home/hd1/yi/startup.sh" ]; then
+    /home/hd1/yi/startup.sh
 fi
 
 # Adding some symlinks for the last picture/video
@@ -90,11 +92,11 @@ if [ ! -d "${YI_HOME}/www/img" ]; then
 fi
 
 if [ ! -f "${YI_HOME}/www/img/last.jpg" ]; then
-    ln -s /tmp/sd/record/last.jpg ${YI_HOME}/www/img/last.jpg
+    ln -s ${RECORD}/last.jpg ${YI_HOME}/www/img/last.jpg
 fi
 
 if [ ! -f "${YI_HOME}/www/img/last.mp4" ]; then
-    ln -s /tmp/sd/record/last.mp4 ${YI_HOME}/www/img/last.mp4
+    ln -s ${RECORD}/last.mp4 ${YI_HOME}/www/img/last.mp4
 fi
 
 # Check if we use the telegram alarm functionality

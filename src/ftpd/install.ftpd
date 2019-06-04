@@ -3,10 +3,12 @@
 SCRIPT_DIR=$(cd `dirname $0` && pwd)
 cd $SCRIPT_DIR
 
+YI_HOME="/home/yi"
+BUILD_YI_HOME="../../build${YI_HOME}"
+
 # Compress the file
 #upx ./_install/sbin/pure-ftpd
 
-mkdir -p ../../build/home/yi-hack-v4/sbin/
+mkdir -p ${BUILD_YI_HOME}/sbin
 
-rsync -a ./_install/sbin/pure-ftpd ../../build/home/yi-hack-v4/sbin/
-
+rsync -av ./_install/sbin/pure-ftpd ${BUILD_YI_HOME}/sbin/

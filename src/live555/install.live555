@@ -3,8 +3,9 @@
 SCRIPT_DIR=$(cd `dirname $0` && pwd)
 cd $SCRIPT_DIR
 
-#mkdir -p ../../build/home/yi-hack-v4/lib/ || exit 1
+YI_HOME="/home/yi"
+BUILD_YI_HOME="../../build${YI_HOME}"
 
-rsync -av ./_install/* ../../build/home/yi-hack-v4/lib/ || exit 1
+mkdir -p ${BUILD_YI_HOME}/lib || exit 1
 
-
+rsync -av ./_install/* ${BUILD_YI_HOME}/lib/ || exit 1

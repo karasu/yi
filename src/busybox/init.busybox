@@ -5,7 +5,7 @@ cd $SCRIPT_DIR
 
 rm -rf ./_install
 
-cd busybox 
+cd busybox
 git reset --hard || exit 1
 
 cp ../.config ./ || exit 1

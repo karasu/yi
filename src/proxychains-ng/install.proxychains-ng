@@ -3,14 +3,17 @@
 SCRIPT_DIR=$(cd `dirname $0` && pwd)
 cd $SCRIPT_DIR
 
+YI_HOME="/home/yi"
+BUILD_YI_HOME="../../build${YI_HOME}"
+
 # Compress the file
 #upx ./_install/bin/*
 #upx ./_install/lib/*
 
-mkdir -p ../../build/home/yi-hack-v4/bin/
-mkdir -p ../../build/home/yi-hack-v4/lib/
-mkdir -p ../../build/home/yi-hack-v4/etc/
+mkdir -p ${BUILD_YI_HOME}/bin || exit 1
+mkdir -p ${BUILD_YI_HOME}/lib || exit 1
+mkdir -p ${BUILD_YI_HOME}/etc || exit 1
 
-rsync -a ./_install/bin/* ../../build/home/yi-hack-v4/bin/
-rsync -a ./_install/lib/* ../../build/home/yi-hack-v4/lib/
-rsync -a ./proxychains.conf ../../build/home/yi-hack-v4/etc/
+rsync -av ./_install/bin/* ${BUILD_YI_HOME}/bin/
+rsync -av ./_install/lib/* ${BUILD_YI_HOME}/lib/
+rsync -av ./proxychains.conf ${BUILD_YI_HOME}/etc/

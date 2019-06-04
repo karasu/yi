@@ -30,5 +30,5 @@ source "$(get_script_dir)/common.sh"
 SCRIPT_DIR=$(get_script_dir)
 
 for CAMERA_NAME in "${!CAMERAS[@]}"; do
-    $SCRIPT_DIR/pack_fw.sh $CAMERA_NAME
+    ${SCRIPT_DIR}/pack_fw.sh $CAMERA_NAME
 done

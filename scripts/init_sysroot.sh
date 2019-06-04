@@ -278,7 +278,7 @@ FIRMWARE_DIR=$(normalize_path $(get_script_dir)/../stock_firmware)/$CAMERA_NAME
 
 echo ""
 echo "------------------------------------------------------------------------"
-echo " YI-HACK-V4 - INIT SYSROOT"
+echo " YI HACK v4 - INIT SYSROOT"
 echo "------------------------------------------------------------------------"
 printf " camera_name      : %s\n" $CAMERA_NAME
 printf " camera_id        : %s\n" $CAMERA_ID
@@ -288,7 +288,6 @@ printf " sysroot_dir      : %s\n" $SYSROOT_DIR
 printf " firmware_dir     : %s\n" $FIRMWARE_DIR
 echo "------------------------------------------------------------------------"
 echo ""
-
 echo ""
 
 if [[ ! -d "$FIRMWARE_DIR" ]]; then
@@ -298,17 +297,14 @@ fi
 
 # Create the needed directories
 create_sysroot_dir $CAMERA_NAME $SYSROOT_BASE_DIR
-
 echo ""
 
 # Extract the stock fw to the camera's sysroot
 extract_stock_fw $CAMERA_ID $SYSROOT_DIR $FIRMWARE_DIR
-
-printf "\n"
+echo ""
 
 # Extract and decrypy the stock firmware update
 extract_fw_update $CAMERA_ID $SYSROOT_DIR $FIRMWARE_DIR
-
 echo ""
 
 echo "Success!"

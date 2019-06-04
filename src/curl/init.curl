@@ -1,13 +1,15 @@
 #!/bin/bash
-￼	
+
 SCRIPT_DIR=$(cd `dirname $0` && pwd)
 cd $SCRIPT_DIR
-￼	
-rm -rf ./_install
-￼	
+
+if [ -d ./_install ]; then
+    rm -rf ./_install
+fi
+
 cd curl || exit 1
 git reset --hard || exit 1
-￼	
+
 ./buildconf || exit 1
 ./configure CC=arm-hisiv300-linux-gcc \
     --prefix=$SCRIPT_DIR/_install \

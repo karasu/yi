@@ -76,7 +76,7 @@ source "$(get_script_dir)/common.sh"
 
 echo ""
 echo "------------------------------------------------------------------------"
-echo " YI-HACK-V4 - SRC COMPILER"
+echo " YI HACK v4 - SRC COMPILER"
 echo "------------------------------------------------------------------------"
 echo ""
 
@@ -90,8 +90,7 @@ mkdir -p "$(get_script_dir)/../build/home" || exit 1
 mkdir -p "$(get_script_dir)/../build/rootfs" || exit 1
 
 SRC_DIR=$(get_script_dir)/../src
-
-for SUB_DIR in $SRC_DIR/* ; do
+for SUB_DIR in ${SRC_DIR}/* ; do
     if [ -d ${SUB_DIR} ]; then # Will not run if no directories are available
         compile_module $(normalize_path "$SUB_DIR") || exit 1
     fi
@@ -100,6 +99,6 @@ done
 BIN_DIR=$(get_script_dir)/../bin
 BUILD_DIR=$(get_script_dir)/../build
 
-if [ -d "$BIN_DIR" ]; then
-    cp -R $BIN_DIR/* $BUILD_DIR/
+if [ -d "${BIN_DIR}" ]; then
+    cp -R ${BIN_DIR}/* ${BUILD_DIR}/
 fi

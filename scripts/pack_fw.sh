@@ -94,7 +94,7 @@ OUT_DIR=${BASE_DIR}out/$CAMERA_NAME
 
 echo ""
 echo "------------------------------------------------------------------------"
-echo " YI HACK - FIRMWARE PACKER"
+echo " YI HACK v4 - FIRMWARE PACKER"
 echo "------------------------------------------------------------------------"
 printf " camera_name      : %s\n" $CAMERA_NAME
 printf " camera_id        : %s\n" $CAMERA_ID
@@ -113,11 +113,11 @@ sleep 1
 printf "Checking if the required sysroot exists... "
 
 # Check if the sysroot exist
-if [[ ! -d "$SYSROOT_DIR/home" || ! -d "$SYSROOT_DIR/rootfs" ]]; then
+if [[ ! -d "${SYSROOT_DIR}/home" || ! -d "${SYSROOT_DIR}/rootfs" ]]; then
     printf "\n\n"
     echo "ERROR: Cannot find the sysroot. Missing:"
-    echo " > $SYSROOT_DIR/home"
-    echo " > $SYSROOT_DIR/rootfs"
+    echo " > ${SYSROOT_DIR}/home"
+    echo " > ${SYSROOT_DIR}/rootfs"
     echo ""
     echo "You should create the $CAMERA_NAME sysroot before trying to pack the firmware."
     exit 1
@@ -126,7 +126,7 @@ else
 fi
 
 echo -n "Creating the out directory... "
-mkdir -p $OUT_DIR
+mkdir -p ${OUT_DIR}
 echo "${OUT_DIR} created!"
 
 echo -n "Creating the tmp directory... "
@@ -135,13 +135,12 @@ echo "${TMP_DIR} created!"
 
 # Copy the sysroot to the tmp dir
 echo -n "Copying the sysroot contents... "
-rsync -a $SYSROOT_DIR/rootfs/* $TMP_DIR/rootfs || exit 1
-rsync -a $SYSROOT_DIR/home/* $TMP_DIR/home || exit 1
+rsync -av ${SYSROOT_DIR}/rootfs/* ${TMP_DIR}/rootfs || exit 1
+rsync -av ${SYSROOT_DIR}/home/* ${TMP_DIR}/home || exit 1
 echo "done!"
 
 # We can safely replace chinese audio files with links to the us version
 echo -n "Removing unneeded audio files... "
-
 AUDIO_EXTENSION="*.aac"
 
 if [[ $CAMERA_NAME == "yi_home" ]] ; then
@@ -166,65 +165,67 @@ for AUDIO_FILE in ${TMP_DIR}/home/app/audio_file/us/${AUDIO_EXTENSION} ; do
 done
 echo "done!"
 
-# Copy the build files to the tmp dir
+# Copy build files to the tmp dir
 echo -n "Copying the build files... "
-rsync -a ${BUILD_DIR}/rootfs/* ${TMP_DIR}/rootfs || exit 1
-rsync -a ${BUILD_DIR}/home/* ${TMP_DIR}/home || exit 1
+rsync -av ${BUILD_DIR}/rootfs/* ${TMP_DIR}/rootfs || exit 1
+rsync -av ${BUILD_DIR}/home/* ${TMP_DIR}/home || exit 1
 echo "done!"
+
+TMP_YI_HOME=${TMP}/${YI_HOME}
 
 # Copy viewd
 if [ -f ${BASE_DIR}viewd ]; then
     echo -n "Copying viewd..."
-    cp ${BASE_DIR}viewd ${TMP_DIR}/home/yi/bin
+    cp -v ${BASE_DIR}viewd ${TMP_YI_HOME}/bin
 fi
 echo "done!"
 
 # Copy sdk libraries
 if [ -d /opt/hisi-linux/x86-arm/arm-hisiv300-linux/arm-hisiv300-linux-uclibcgnueabi/lib ]; then
     echo "Copying library files from sdk..."
-    sudo cp -av /opt/hisi-linux/x86-arm/arm-hisiv300-linux/arm-hisiv300-linux-uclibcgnueabi/lib/*.so.* ${TMP_DIR}/home/yi-hack-v4/lib
+    sudo cp -av /opt/hisi-linux/x86-arm/arm-hisiv300-linux/arm-hisiv300-linux-uclibcgnueabi/lib/*.so.* ${TMP_YI_HOME}/lib
 fi
 echo "done!"
 
-if [ ! -f ${TMP_DIR}/home/yi-hack-v4/bin/vencrtsp_v2 ]; then
+if [ ! -f ${TMP_YI_HOME}/bin/vencrtsp_v2 ]; then
     echo -n "vencrtsp_v2 compilation failed. Copying executable..."
-    cp ${BASE_DIR}vencrtsp_v2 ${TMP_DIR}/home/yi-hack-v4/bin
+    cp ${BASE_DIR}vencrtsp_v2 ${TMP_YI_HOME}/bin
 fi
 echo "done!"
 
 # insert the version file
 echo -n "Copying VERSION file... "
-cp $BASE_DIR/VERSION $TMP_DIR/home/yi-hack-v4/version
+cp $BASE_DIR/VERSION ${TMP_YI_HOME}/version
 echo "done!"
 
 # insert the camera version file
 echo -n "Creating the .camver file... "
-echo $CAMERA_NAME > $TMP_DIR/home/app/.camver
+echo $CAMERA_NAME > ${TMP_DIR}/home/app/.camver
 echo "done!"
 
 # fix the files ownership
 echo -n "Fixing tmp files ownership... "
-sudo chown -R root:root $TMP_DIR
+sudo chown -R root:root ${TMP_DIR}
 echo "done!"
 
 echo -n "Compressing yi app files..."
 # Compress a couple of the yi app files
-compress_file "$TMP_DIR/home/app" cloudAPI
-compress_file "$TMP_DIR/home/app" oss
-compress_file "$TMP_DIR/home/app" p2p_tnp
-compress_file "$TMP_DIR/home/app" rmm
+compress_file "${TMP_DIR}/home/app" cloudAPI
+compress_file "${TMP_DIR}/home/app" oss
+compress_file "${TMP_DIR}/home/app" p2p_tnp
+compress_file "${TMP_DIR}/home/app" rmm
 echo "done!"
 
-# Compress the yi-hack-v4 folder
-echo -n "Compressing yi-hack-v4... "
-sudo 7za a $TMP_DIR/home/yi-hack-v4/yi-hack-v4.7z $TMP_DIR/home/yi-hack-v4/* > /dev/null
+# Compress the yi folder
+echo -n "Compressing $YI_HOME... "
+sudo 7za a ${TMP_YI_HOME}/yi.7z ${TMP_YI_HOME}/* > /dev/null
 echo "done!"
 
 echo "Removing duplicated compressed files..."
-# Delete all the compressed files except system_init.sh and yi-hack-v4.7z
-sudo find $TMP_DIR/home/yi-hack-v4/script/ -maxdepth 0 ! -name 'system_init.sh' -type f -exec sudo rm -f {} +
-sudo find $TMP_DIR/home/yi-hack-v4/* -maxdepth 0 -type d ! -name 'script' -exec sudo rm -rf {} +
-sudo find $TMP_DIR/home/yi-hack-v4/* -maxdepth 0 -type f -not -name 'yi-hack-v4.7z' -exec sudo rm {} +
+# Delete all the compressed files except system_init.sh and yi.7z
+sudo find ${TMP_YI_HOME}/script/ -maxdepth 0 ! -name 'system_init.sh' -type f -exec sudo rm -f {} +
+sudo find ${TMP_YI_HOME}/* -maxdepth 0 -type d ! -name 'script' -exec sudo rm -rf {} +
+sudo find ${TMP_YI_HOME}/* -maxdepth 0 -type f -not -name 'yi.7z' -exec sudo rm {} +
 echo "done!"
 
 # fix the files ownership

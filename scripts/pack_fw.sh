@@ -171,7 +171,7 @@ rsync -av ${BUILD_DIR}/rootfs/* ${TMP_DIR}/rootfs || exit 1
 rsync -av ${BUILD_DIR}/home/* ${TMP_DIR}/home || exit 1
 echo "done!"
 
-TMP_YI_HOME=${TMP}/${YI_HOME}
+TMP_YI_HOME=${TMP_DIR}/${YI_HOME}
 
 # Copy viewd
 if [ -f ${BASE_DIR}viewd ]; then

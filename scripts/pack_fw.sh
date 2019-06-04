@@ -240,8 +240,8 @@ pack_image "home" $CAMERA_ID $TMP_DIR $OUT_DIR
 pack_image "rootfs" $CAMERA_ID $TMP_DIR $OUT_DIR
 
 # Cleanup
-echo -n "Cleaning up the tmp folder... "
-sudo rm -rf $TMP_DIR
+echo -n "Cleaning up the tmp folder ($TMP_DIR)... "
+#sudo rm -rf $TMP_DIR
 echo "done!"
 
 echo "------------------------------------------------------------------------"

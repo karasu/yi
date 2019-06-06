@@ -3,7 +3,8 @@
 SCRIPT_DIR=$(cd `dirname $0` && pwd)
 cd $SCRIPT_DIR
 
-YI_HOME="/home/yi"
+#YI_HOME="/home/yi"
+YI_HOME="/sd/yi"
 BUILD_YI_HOME="../../build${YI_HOME}"
 
 rsync -av ./_install/* ${BUILD_YI_HOME}/bin/ || exit 1

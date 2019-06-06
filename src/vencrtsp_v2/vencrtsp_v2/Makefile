@@ -1,6 +1,6 @@
 # Hisilicon Hi3516 sample Makefile
 
-include ../Makefile.param
+#include ../Makefile.param
 #ifeq ($(SAMPLE_PARAM_FILE), )
 #     SAMPLE_PARAM_FILE:=../Makefile.param
 #     include $(SAMPLE_PARAM_FILE)
@@ -9,6 +9,8 @@ include ../Makefile.param
 # target source
 SRC  := $(wildcard *.c)
 OBJ  := $(SRC:%.c=%.o)
+
+CFLAGS+=-I. -I/data/camera/sdk/Hi3518E_SDK_V1.0.4.0/mpp/sample/common -I/data/camera/sdk/Hi3518E_SDK_V1.0.4.0/mpp/include
 
 TARGET := $(OBJ:%.o=%)
 .PHONY : clean all

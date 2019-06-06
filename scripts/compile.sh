@@ -48,10 +48,6 @@ compile_module()
         echo "$MOD_COMPILE not found.. exiting."
         exit 1
     fi
-    if [ ! -f $MOD_INSTALL ]; then
-        echo "$MOD_INSTALL not found.. exiting."
-        exit 1
-    fi
 
     echo ""
 
@@ -60,9 +56,6 @@ compile_module()
 
     printf "Compiling $MOD_NAME...\n\n"
     ./$MOD_COMPILE || exit 1
-
-    printf "Installing '$MOD_INSTALL' in the firmware...\n\n"
-    ./$MOD_INSTALL || exit 1
 
     printf "\n\nDone!\n\n"
     )

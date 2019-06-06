@@ -27,6 +27,10 @@ extern "C"{
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+// #define CHIP_ID CHIP_HI3516C_V200
+#define CHIP_ID CHIP_HI3518E_V200
+// #define CHIP_ID CHIP_HI3518E_V201
+
 #include "rtsp_server.h"
 #include "sample_comm.h"
 

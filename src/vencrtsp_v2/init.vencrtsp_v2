@@ -8,3 +8,6 @@ cd $SCRIPT_DIR
 rm -rf ./_install
 
 cd vencrtsp_v2
+
+make clean
+

@@ -1,7 +1,8 @@
 #!/bin/bash
 
 SCRIPT_DIR=$(cd `dirname $0` && pwd)
-cd $SCRIPT_DIR
+echo ">>> ${SCRIPT_DIR}"
+cd ${SCRIPT_DIR}
 
 #YI_HOME="/home/yi"
 YI_HOME="/sd/yi"
@@ -10,4 +11,4 @@ BUILD_YI_HOME="../../build${YI_HOME}"
 mkdir -p ${BUILD_YI_HOME}/bin || exit 1
 mkdir -p ${BUILD_YI_HOME}/lib || exit 1
 
-rsync -av ./_install/* ${BUILD_YI_HOME}/ || exit 1
+rsync -av ${SCRIPT_DIR}/_install/* ${BUILD_YI_HOME}/ || exit 1

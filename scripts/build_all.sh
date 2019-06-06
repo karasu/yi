@@ -8,6 +8,10 @@ read
 echo "Press ENTER to continue..."
 read
 
+./install.sh
+echo "Press ENTER to continue..."
+read
+
 ./init_sysroot.sh yi_home
 echo "Press ENTER to continue..."
 read

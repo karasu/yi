@@ -40,8 +40,8 @@ compress_file()
     local FILE=$DIR/$FILENAME
     if [[ -f "$FILE" ]]; then
         printf "Compressing %s... " $FILENAME
-        sudo 7za a "$FILE.7z" "$FILE" > /dev/null
-        sudo rm -f "$FILE"
+        sudo 7za a -sdel "$FILE.7z" "$FILE" > /dev/null
+#        sudo rm -f "$FILE"
         printf "done!\n"
     fi
 }
@@ -171,7 +171,7 @@ rsync -av ${BUILD_DIR}/rootfs/* ${TMP_DIR}/rootfs || exit 1
 rsync -av ${BUILD_DIR}/home/* ${TMP_DIR}/home || exit 1
 echo "done!"
 
-TMP_YI_HOME=${TMP_DIR}/${YI_HOME}
+TMP_YI_HOME=${TMP_DIR}${YI_HOME}
 
 # Copy viewd
 if [ -f ${BASE_DIR}viewd ]; then
@@ -216,17 +216,17 @@ compress_file "${TMP_DIR}/home/app" p2p_tnp
 compress_file "${TMP_DIR}/home/app" rmm
 echo "done!"
 
-# Compress the yi folder
-echo -n "Compressing $YI_HOME... "
-sudo 7za a ${TMP_YI_HOME}/yi.7z ${TMP_YI_HOME}/* > /dev/null
-echo "done!"
-
-echo "Removing duplicated compressed files..."
-# Delete all the compressed files except system_init.sh and yi.7z
-sudo find ${TMP_YI_HOME}/script/ -maxdepth 0 ! -name 'system_init.sh' -type f -exec sudo rm -f {} +
-sudo find ${TMP_YI_HOME}/* -maxdepth 0 -type d ! -name 'script' -exec sudo rm -rf {} +
-sudo find ${TMP_YI_HOME}/* -maxdepth 0 -type f -not -name 'yi.7z' -exec sudo rm {} +
-echo "done!"
+## Compress the yi folder
+#echo "Compressing $YI_HOME... "
+#sudo 7za a ${TMP_YI_HOME}/yi.7z ${TMP_YI_HOME}/*
+#echo "done!"
+#
+#echo "Removing duplicated compressed files from ${TMP_YI_HOME}..."
+## Delete all the compressed files except system_init.sh and yi.7z
+#sudo find ${TMP_YI_HOME}/script/ -maxdepth 0 -not -name 'system_init.sh' -type f -exec rm -f {} +
+#sudo find ${TMP_YI_HOME}/* -maxdepth 0 -type d -not -name 'script' -exec rm -rf {} +
+#sudo find ${TMP_YI_HOME}/* -maxdepth 0 -type f -not -name 'yi.7z' -exec rm {} +
+#echo "done!"
 
 # fix the files ownership
 printf "Fixing compressed files ownership... "
@@ -242,6 +242,11 @@ pack_image "rootfs" $CAMERA_ID $TMP_DIR $OUT_DIR
 # Cleanup
 echo -n "Cleaning up the tmp folder ($TMP_DIR)... "
 #sudo rm -rf $TMP_DIR
+echo "done!"
+
+echo -n "Copying extra sd files to ${OUT_DIR} directory... "
+mkdir -p ${OUT_DIR}
+cp -Rv ${BUILD_DIR}/sd/* ${OUT_DIR}
 echo "done!"
 
 

@@ -25,4 +25,4 @@ ln -fs dbclient ${BUILD_ROOTFS}/bin/ssh
 
 ln -fs /bin/dbclient ${BUILD_ROOTFS}/usr/bin/dbclient
 
-ln -fs /home/yi-hack-v4/bin/dropbearmulti ${BUILD_ROOTFS}/sbin/dropbear
+ln -fs ${YI_HOME}/bin/dropbearmulti ${BUILD_ROOTFS}/sbin/dropbear

@@ -241,7 +241,7 @@ pack_image "rootfs" $CAMERA_ID $TMP_DIR $OUT_DIR
 
 # Cleanup
 echo -n "Cleaning up the tmp folder ($TMP_DIR)... "
-#sudo rm -rf $TMP_DIR
+sudo rm -rf $TMP_DIR
 echo "done!"
 
 echo -n "Copying extra sd files to ${OUT_DIR} directory... "

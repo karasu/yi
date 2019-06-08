@@ -223,9 +223,9 @@ echo "done!"
 
 echo "Removing duplicated compressed files from ${TMP_YI_HOME}..."
 # Delete all the compressed files except system_init.sh and yi.7z
-sudo find ${TMP_YI_HOME}/script -maxdepth 1 -not -name 'system_init.sh' -type f -exec rm -f {} +
-sudo find ${TMP_YI_HOME}/* -maxdepth 1 -type d -not -name 'script' -exec rm -rf {} +
-#sudo find ${TMP_YI_HOME}/* -maxdepth 1 -type f -not -name 'yi.7z' | xargs rm -rf
+sudo sh -c "find $TMP_YI_HOME/script -maxdepth 1 -not -name 'system_init.sh' -type f -exec rm -f {} +"
+sudo sh -c "find $TMP_YI_HOME/* -maxdepth 1 -type d -not -name 'script' -exec rm -rf {} +"
+sudo sh -c "find ${TMP_YI_HOME}/* -maxdepth 0 -type f -not -name 'yi.7z' | xargs rm -rf"
 echo "done!"
 
 # fix the files ownership

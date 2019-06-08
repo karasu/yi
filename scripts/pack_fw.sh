@@ -217,16 +217,16 @@ compress_file "${TMP_DIR}/home/app" rmm
 echo "done!"
 
 ## Compress the yi folder
-#echo "Compressing $YI_HOME... "
-#sudo 7za a ${TMP_YI_HOME}/yi.7z ${TMP_YI_HOME}/*
-#echo "done!"
-#
-#echo "Removing duplicated compressed files from ${TMP_YI_HOME}..."
-## Delete all the compressed files except system_init.sh and yi.7z
-#sudo find ${TMP_YI_HOME}/script/ -maxdepth 0 -not -name 'system_init.sh' -type f -exec rm -f {} +
-#sudo find ${TMP_YI_HOME}/* -maxdepth 0 -type d -not -name 'script' -exec rm -rf {} +
-#sudo find ${TMP_YI_HOME}/* -maxdepth 0 -type f -not -name 'yi.7z' -exec rm {} +
-#echo "done!"
+echo "Compressing $YI_HOME... "
+sudo 7za a ${TMP_YI_HOME}/yi.7z ${TMP_YI_HOME}/*
+echo "done!"
+
+echo "Removing duplicated compressed files from ${TMP_YI_HOME}..."
+# Delete all the compressed files except system_init.sh and yi.7z
+sudo find ${TMP_YI_HOME}/script/ -maxdepth 1 -not -name 'system_init.sh' -type f -exec rm -f {} +
+sudo find ${TMP_YI_HOME}/* -maxdepth 1 -type d -not -name 'script' | xargs rm -rf
+#sudo find ${TMP_YI_HOME}/* -maxdepth 1 -type f -not -name 'yi.7z' | xargs rm -rf
+echo "done!"
 
 # fix the files ownership
 printf "Fixing compressed files ownership... "

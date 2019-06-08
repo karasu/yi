@@ -15,7 +15,15 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/lib:${YI_HOME}/lib:${YI_HOME_SD}/l
 export PATH=$PATH:/home/base/tools:${YI_HOME}/bin:${YI_HOME}/sbin:${YI_HOME_SD}/bin:${YI_HOME_SD}/sbin
 
 ulimit -s 1024
-hostname -F /etc/hostname
+
+# Use 2 last MAC address numbers to set a different hostname
+MAC=$(cat /sys/class/net/wlan0/address|cut -d ':' -f 5,6|sed 's/://g')
+if [ "$MAC" != "" ]; then
+    hostname yi-$MAC
+    hostname > /etc/hostname
+else
+    hostname -F /etc/hostname
+fi
 
 if [[ $(get_config DISABLE_CLOUD) == "no" ]] ; then
 (

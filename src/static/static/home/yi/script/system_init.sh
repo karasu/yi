@@ -4,11 +4,11 @@ YI_HOME="/home/yi"
 YI_PREFIX="/home/app"
 UDHCPC_SCRIPT_DEST="/home/app/script/default.script"
 
-ARCHIVE_FILE="${YI_HOME}/yi.7z"
+ARCHIVE_FILE="$YI_HOME/yi.7z"
 
 DHCP_SCRIPT_DEST="/home/app/script/wifidhcp.sh"
-UDHCP_SCRIPT="${YI_HOME}/script/default.script"
-DHCP_SCRIPT="${YI_HOME}/script/wifidhcp.sh"
+UDHCP_SCRIPT="$YI_HOME/script/default.script"
+DHCP_SCRIPT="$YI_HOME/script/wifidhcp.sh"
 
 # Extract all 7z files from /home/app
 files=`find $YI_PREFIX -maxdepth 1 -name "*.7z"`
@@ -25,7 +25,7 @@ fi
 
 if [ ! -f $YI_PREFIX/cloudAPI_real ]; then
 	mv $YI_PREFIX/cloudAPI $YI_PREFIX/cloudAPI_real
-	cp ${YI_HOME}/script/cloudAPI $YI_PREFIX/
+	cp $YI_HOME/script/cloudAPI $YI_PREFIX/
         rm $UDHCPC_SCRIPT_DEST
         cp $UDHCP_SCRIPT $UDHCPC_SCRIPT_DEST
 	if [ -f $DHCP_SCRIPT_DEST ]; then
@@ -34,8 +34,8 @@ if [ ! -f $YI_PREFIX/cloudAPI_real ]; then
 	fi
 fi
 
-mkdir -p ${YI_HOME}/etc/crontabs
-mkdir -p ${YI_HOME}/etc/dropbear
+mkdir -p $YI_HOME/etc/crontabs
+mkdir -p $YI_HOME/etc/dropbear
 
 # Comment out all the cloud stuff from base/init.sh
 sed -i '/^\.\/watch_process/s/^/#/' /home/app/init.sh

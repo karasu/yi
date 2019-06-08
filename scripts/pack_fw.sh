@@ -38,12 +38,12 @@ compress_file()
     local DIR=$1
     local FILENAME=$2
     local FILE=$DIR/$FILENAME
-    if [[ -f "$FILE" ]]; then
-        printf "Compressing %s... " $FILENAME
-        sudo 7za a -sdel "$FILE.7z" "$FILE" > /dev/null
-#        sudo rm -f "$FILE"
-        printf "done!\n"
-    fi
+#    if [ -f "$MYFILE" ]; then
+        echo -n "    Compressing $FILE..."
+        sudo 7za a -bd -sdel -y -mx9 "$FILE.7z" "$FILE" > /dev/null
+        #sudo rm -f "$FILE"
+        echo "done!"
+#    fi
 }
 
 pack_image()
@@ -53,14 +53,15 @@ pack_image()
     local DIR=$3
     local OUT=$4
 
-    printf ">>> PACKING : %s_%s\n\n" $TYPE $CAMERA_ID
+    echo ">>> Packing ${TYPE}_${CAMERA_ID}"
 
-    printf "Creating jffs2 filesystem... "
+    echo -n "    Creating jffs2 filesystem in $DIR/${TYPE}_${CAMERA_ID}.jffs2... "
     sudo mkfs.jffs2 -l -e 64 -r $DIR/$TYPE -o $DIR/${TYPE}_${CAMERA_ID}.jffs2 || exit 1
-    printf "done!\n"
-    printf "Adding U-Boot header... "
+    echo "done!"
+
+    echo -n "    Adding U-Boot header... "
     sudo mkimage -A arm -T filesystem -C none -n 0001-hi3518-$TYPE -d $DIR/${TYPE}_${CAMERA_ID}.jffs2 $OUT/${TYPE}_${CAMERA_ID} > /dev/null || exit 1
-    printf "done!\n\n"
+    echo "done!"
 }
 
 ###############################################################################
@@ -110,7 +111,7 @@ printf "Starting...\n\n"
 
 sleep 1
 
-printf "Checking if the required sysroot exists... "
+printf ">>> Checking if the required sysroot exists... "
 
 # Check if the sysroot exist
 if [[ ! -d "${SYSROOT_DIR}/home" || ! -d "${SYSROOT_DIR}/rootfs" ]]; then
@@ -125,24 +126,25 @@ else
     printf "yeah!\n"
 fi
 
-echo -n "Creating the out directory... "
+echo -n ">>> Creating the out directory... "
 mkdir -p ${OUT_DIR}
 echo "${OUT_DIR} created!"
 
-echo -n "Creating the tmp directory... "
+echo -n ">>> Creating the tmp directory... "
 TMP_DIR=$(create_tmp_dir)
 echo "${TMP_DIR} created!"
 
 # Copy the sysroot to the tmp dir
-echo -n "Copying the sysroot contents... "
-rsync -av ${SYSROOT_DIR}/rootfs/* ${TMP_DIR}/rootfs || exit 1
-rsync -av ${SYSROOT_DIR}/home/* ${TMP_DIR}/home || exit 1
-echo "done!"
+echo ">>> Copying the sysroot contents to ${TMP_DIR}... "
+echo "    Copying rootfs..."
+rsync -a ${SYSROOT_DIR}/rootfs/* ${TMP_DIR}/rootfs || exit 1
+echo "    Copying home..."
+rsync -a ${SYSROOT_DIR}/home/* ${TMP_DIR}/home || exit 1
+echo "    done!"
 
 # We can safely replace chinese audio files with links to the us version
-echo -n "Removing unneeded audio files... "
+echo -n ">>> Removing unneeded audio files... "
 AUDIO_EXTENSION="*.aac"
-
 if [[ $CAMERA_NAME == "yi_home" ]] ; then
     # The yi_home camera uses *.g726 and *.726 audio files
     AUDIO_EXTENSION="*726"
@@ -165,73 +167,66 @@ for AUDIO_FILE in ${TMP_DIR}/home/app/audio_file/us/${AUDIO_EXTENSION} ; do
 done
 echo "done!"
 
-# Copy build files to the tmp dir
-echo -n "Copying the build files... "
-rsync -av ${BUILD_DIR}/rootfs/* ${TMP_DIR}/rootfs || exit 1
-rsync -av ${BUILD_DIR}/home/* ${TMP_DIR}/home || exit 1
+## Copy build files to the tmp dir
+echo -n ">>> Copying files from the build directory to ${TMP_DIR}... "
+cp -R ${BUILD_DIR}/rootfs/* ${TMP_DIR}/rootfs || exit 1
+cp -R ${BUILD_DIR}/home/* ${TMP_DIR}/home || exit 1
 echo "done!"
 
 TMP_YI_HOME=${TMP_DIR}${YI_HOME}
 
-# Copy viewd
+# Copy viewd to sd yi folder
 if [ -f ${BASE_DIR}viewd ]; then
-    echo -n "Copying viewd..."
-    cp -v ${BASE_DIR}viewd ${TMP_YI_HOME}/bin
+    echo -n ">>> Copying viewd to ${TMP_YI_HOME}/bin..."
+    cp ${BASE_DIR}viewd ${TMP_YI_HOME}/bin
+    echo "done!"
 fi
-echo "done!"
-
-# Copy sdk libraries
-if [ -d /opt/hisi-linux/x86-arm/arm-hisiv300-linux/arm-hisiv300-linux-uclibcgnueabi/lib ]; then
-    echo "Copying library files from sdk..."
-    sudo cp -av /opt/hisi-linux/x86-arm/arm-hisiv300-linux/arm-hisiv300-linux-uclibcgnueabi/lib/*.so.* ${TMP_YI_HOME}/lib
-fi
-echo "done!"
 
 if [ ! -f ${TMP_YI_HOME}/bin/vencrtsp_v2 ]; then
-    echo -n "vencrtsp_v2 compilation failed. Copying executable..."
+    echo -n ">>> vencrtsp_v2 compilation failed. Copying executable..."
     cp ${BASE_DIR}vencrtsp_v2 ${TMP_YI_HOME}/bin
+    echo "done!"
 fi
-echo "done!"
 
-# insert the version file
-echo -n "Copying VERSION file... "
+# Insert the version file
+echo -n ">>> Copying VERSION file... "
 cp $BASE_DIR/VERSION ${TMP_YI_HOME}/version
 echo "done!"
 
-# insert the camera version file
-echo -n "Creating the .camver file... "
+# Insert the camera version file
+echo -n ">>> Creating the .camver file... "
 echo $CAMERA_NAME > ${TMP_DIR}/home/app/.camver
 echo "done!"
 
 # fix the files ownership
-echo -n "Fixing tmp files ownership... "
+echo -n ">>> Fixing tmp files ownership... "
 sudo chown -R root:root ${TMP_DIR}
 echo "done!"
 
-echo -n "Compressing yi app files..."
-# Compress a couple of the yi app files
-compress_file "${TMP_DIR}/home/app" cloudAPI
-compress_file "${TMP_DIR}/home/app" oss
-compress_file "${TMP_DIR}/home/app" p2p_tnp
-compress_file "${TMP_DIR}/home/app" rmm
+## Compress the yi app files
+echo ">>> Compressing yi app files..."
+compress_file ${TMP_DIR}/home/app cloudAPI
+compress_file ${TMP_DIR}/home/app oss
+compress_file ${TMP_DIR}/home/app p2p_tnp
+compress_file ${TMP_DIR}/home/app rmm
 echo "done!"
 
-## Compress the yi folder
-echo "Compressing $YI_HOME... "
-sudo 7za a ${TMP_YI_HOME}/yi.7z ${TMP_YI_HOME}/*
-echo "done!"
+## Compress the /home/yi folder
+#echo -n ">>> Compressing $YI_HOME... "
+#sudo 7za a -bd -mx9 -y ${TMP_YI_HOME}/yi.7z ${TMP_YI_HOME}/* > /dev/null
+#echo "done!"
 
-echo "Removing duplicated compressed files from ${TMP_YI_HOME}..."
-# Delete all the compressed files except system_init.sh and yi.7z
-sudo sh -c "find $TMP_YI_HOME/script -maxdepth 1 -not -name 'system_init.sh' -type f -exec rm -f {} +"
-sudo sh -c "find $TMP_YI_HOME/* -maxdepth 1 -type d -not -name 'script' -exec rm -rf {} +"
-sudo sh -c "find ${TMP_YI_HOME}/* -maxdepth 0 -type f -not -name 'yi.7z' | xargs rm -rf"
-echo "done!"
+#echo -n ">>> Removing duplicated compressed files from ${TMP_YI_HOME}..."
+## Delete all the compressed files except system_init.sh and yi.7z
+#sudo sh -c "find $TMP_YI_HOME/script -maxdepth 1 -not -name 'system_init.sh' -type f -exec rm -f {} +"
+#sudo sh -c "find $TMP_YI_HOME/* -maxdepth 1 -type d -not -name 'script' -exec rm -rf {} +"
+#sudo sh -c "find ${TMP_YI_HOME}/* -maxdepth 0 -type f -not -name 'yi.7z' | xargs rm -rf"
+#echo "done!"
 
-# fix the files ownership
-printf "Fixing compressed files ownership... "
-sudo chown -R root:root $TMP_DIR
-printf "done!\n\n"
+## fix the files ownership
+#echo -n ">>> Fixing compressed files ownership... (again)"
+#sudo chown -R root:root ${TMP_DIR}
+#echo "done!"
 
 # home
 pack_image "home" $CAMERA_ID $TMP_DIR $OUT_DIR
@@ -240,15 +235,23 @@ pack_image "home" $CAMERA_ID $TMP_DIR $OUT_DIR
 pack_image "rootfs" $CAMERA_ID $TMP_DIR $OUT_DIR
 
 # Cleanup
-echo -n "Cleaning up the tmp folder ($TMP_DIR)... "
+echo -n ">>> Cleaning up the tmp folder ($TMP_DIR)... "
 sudo rm -rf $TMP_DIR
 echo "done!"
 
-echo -n "Copying extra sd files to ${OUT_DIR} directory... "
+echo -n ">>> Copying extra sd files to ${OUT_DIR} directory... "
 mkdir -p ${OUT_DIR}
-cp -Rv ${BUILD_DIR}/sd/* ${OUT_DIR}
+cp -R ${BUILD_DIR}/sd/* ${OUT_DIR}
 echo "done!"
+
+# Copy sdk libraries
+if [ -d /opt/hisi-linux/x86-arm/arm-hisiv300-linux/arm-hisiv300-linux-uclibcgnueabi/lib ]; then
+    echo -n ">>> Copying library files from sdk to ${OUT_DIR}/yi/lib..."
+    cp -a /opt/hisi-linux/x86-arm/arm-hisiv300-linux/arm-hisiv300-linux-uclibcgnueabi/lib/*.so.* ${OUT_DIR}/yi/lib
+    echo "done!"
+fi
 
 echo "------------------------------------------------------------------------"
 echo " Finished!"
+echo " Files saved in ${OUT_DIR}"
 echo "------------------------------------------------------------------------"

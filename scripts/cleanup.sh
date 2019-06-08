@@ -48,12 +48,12 @@ echo -n "Cleaning out dir..."
 rm -rf ${OUT_DIR}/yi_*
 echo "done!"
 
-echo "Cleaning src/*/_install folders..."
 SRC_DIR=$(get_script_dir)/../src
 for SUB_DIR in ${SRC_DIR}/* ; do
     if [ -d ${SUB_DIR}/_install ]; then # Will not run if no directories are available
-        echo "Cleaning $(basename \"${SUB_DIR}\")..."
+        echo -n "Cleaning $(basename ${SUB_DIR})..."
         rm -rf ${SUB_DIR}/_install
+        echo "done!"
     fi
 done
 echo ""

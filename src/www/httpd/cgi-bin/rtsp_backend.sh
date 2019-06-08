@@ -4,13 +4,15 @@ if [ -d "/usr/yi-hack-v4" ]; then
         YI_HACK_PREFIX="/usr/yi-hack-v4"
 elif [ -d "/home/yi-hack-v4" ]; then
         YI_HACK_PREFIX="/home/yi-hack-v4"
+elif [ -d "/home/yi" ]; then
+        YI_HACK_PREFIX="/home/yi"
 fi
 
 get_action_type()
-{   
+{
     CONF="$(echo $QUERY_STRING | cut -d'=' -f1)"
     VAL="$(echo $QUERY_STRING | cut -d'=' -f2)"
-    
+
     if [ $CONF == "action" ] ; then
         echo $VAL
     fi

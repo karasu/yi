@@ -94,6 +94,11 @@ elif [ -f "/home/hd1/yi/startup.sh" ]; then
     /home/hd1/yi/startup.sh
 fi
 
+# Home Assistant Yi Camera Hack (doesn't hurt anyone I guess)
+if [ ! -f /root/tmp ]; then
+    ln -fs /tmp/ /root/tmp
+fi
+
 # Adding some symlinks for the last picture/video
 if [ ! -d "${YI_HOME}/www/img" ]; then
     mkdir -p ${YI_HOME}/www/img
